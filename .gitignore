@@ -1,0 +1,4 @@
+.sentry-native
+.vscode
+builds
+closeSim.ps1
