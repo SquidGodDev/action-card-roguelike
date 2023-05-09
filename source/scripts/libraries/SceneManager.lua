@@ -36,6 +36,14 @@ function loadNewScene()
     setSceneUpdate(newScene)
 end
 
+-- takes in a scene object that has an 'update' property set
+-- to an update function and switches out the entire playdate
+-- update function. Sprites get updated first, so it doesn't
+-- clear other drawn elements, then the transition image gets
+-- drawn to make sure it gets drawn over everything else. Timers
+-- get updated here too, and since all those elements need to
+-- get updated, just do it here so it doesn't need to be repeated
+-- in every scene update
 function setSceneUpdate(scene)
     local sceneUpdate = scene.update
     pd.update = function()
@@ -48,6 +56,7 @@ function setSceneUpdate(scene)
     end
 end
 
+-- scene cleanup involves removing all sprites, resetting the draw offset, and removing all timers
 function cleanupScene()
     gfx.sprite.removeAll()
     gfx.setDrawOffset(0, 0)
@@ -57,6 +66,7 @@ function cleanupScene()
     end
 end
 
+-- a couple helper functions to help with handling the transition drawing
 function startTransition()
     local transitionTimer = createTransitionTimer(1, transitionMidFrame)
 
