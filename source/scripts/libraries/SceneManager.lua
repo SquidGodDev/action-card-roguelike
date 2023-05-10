@@ -50,7 +50,7 @@ function setSceneUpdate(scene)
         spriteUpdate()
         sceneUpdate()
         if transitionImage then
-            transitionImage:draw(0, 0)
+            transitionImage:drawIgnoringOffset(0, 0)
         end
         timerUpdate()
     end
