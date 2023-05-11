@@ -17,6 +17,6 @@ function TitleScene.update()
         sceneManager.switchScene(GameScene)
     end
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-    gfx.drawTextAligned("Title Scene", 200, 120, kTextAlignment.center)
+    gfx.drawTextAligned('Title Scene', 200, 120, kTextAlignment.center)
     gfx.setImageDrawMode(gfx.kDrawModeCopy)
 end

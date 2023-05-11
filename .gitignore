@@ -3,3 +3,4 @@
 builds
 closeSim.ps1
 main.pdx
+*.pdx

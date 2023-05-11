@@ -5,7 +5,7 @@ local gfx <const> = playdate.graphics
 local transitionTime = 500
 local transitionMidFrame = 20
 
-local transitionImagetable = gfx.imagetable.new("assets/images/ui/quickTransition")
+local transitionImagetable = gfx.imagetable.new('assets/images/ui/quickTransition')
 local transitionImage = nil
 
 local newScene = nil
@@ -46,6 +46,7 @@ end
 -- in every scene update
 function setSceneUpdate(scene)
     local sceneUpdate = scene.update
+    local drawFps = DRAW_FPS
     pd.update = function()
         spriteUpdate()
         sceneUpdate()
@@ -53,6 +54,9 @@ function setSceneUpdate(scene)
             transitionImage:drawIgnoringOffset(0, 0)
         end
         timerUpdate()
+        if drawFps then
+            pd.drawFPS(0, 0)
+        end
     end
 end
 

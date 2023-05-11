@@ -1,6 +1,7 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+local world = nil
 local x, y = 200, 120
 local moveSpeed = 3 * 30
 local xDir, yDir = 0, 0
@@ -8,10 +9,15 @@ local prevDiagonal = false
 local cameraXOffset, cameraYOffset = 0, 0
 local playerImage = gfx.image.new('assets/images/player/player')
 
-Player = {}
+local width, height = 14, 24
+local widthOffset, heightOffset = width/2, 5
 
-function Player.init()
+Player = {}
+local player = Player
+
+function Player.init(bumpWorld)
     x, y = 200, 120
+    player.type = TYPES.player
 
     local playerInputHandlers = {
         leftButtonDown = function() xDir -= 1 end,
@@ -24,6 +30,9 @@ function Player.init()
         downButtonUp = function() yDir -= 1 end,
     }
     pd.inputHandlers.push(playerInputHandlers)
+
+    world = bumpWorld
+    world:add(player, x - widthOffset, y - heightOffset, width, height)
 end
 
 function Player.update(dt)
@@ -39,6 +48,10 @@ function Player.update(dt)
     local yVelocity = normalizedYDir * moveSpeed * dt
     x += xVelocity
     y += yVelocity
+
+    local actualX, actualY, collisions, len = world:move(player, x - widthOffset, y - heightOffset)
+
+    x, y = actualX + widthOffset, actualY + heightOffset
 
     local lerp = 0.1
     cameraXOffset += (x - cameraXOffset - 200) * lerp
