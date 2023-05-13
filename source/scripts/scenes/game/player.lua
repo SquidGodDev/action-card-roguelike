@@ -1,23 +1,36 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+
+Player = {}
+local player = Player
+
 local world = nil
-local x, y = 200, 120
 local moveSpeed = 3 * 30
 local xDir, yDir = 0, 0
 local prevDiagonal = false
 local cameraXOffset, cameraYOffset = 0, 0
 local playerImage = gfx.image.new('assets/images/player/player')
 
-local width, height = 14, 24
-local widthOffset, heightOffset = width/2, 5
+local health = 100
 
-Player = {}
-local player = Player
+player.width, player.height = 14, 24
+player.widthOffset, player.heightOffset = player.width/2, 4
+
+local wallType <const> = TYPES.wall
+local moveFilter = function(item, other)
+    if other.type == wallType then
+        return 'slide'
+    else
+        return 'cross'
+    end
+end
 
 function Player.init(bumpWorld)
-    x, y = 200, 120
+    player.x, player.y = 200, 120
     player.type = TYPES.player
+
+    health = 100
 
     local playerInputHandlers = {
         leftButtonDown = function() xDir -= 1 end,
@@ -31,11 +44,12 @@ function Player.init(bumpWorld)
     }
     pd.inputHandlers.push(playerInputHandlers)
 
-    world = bumpWorld
-    world:add(player, x - widthOffset, y - heightOffset, width, height)
+    -- world = bumpWorld
+    -- world:add(player, player.x - widthOffset, player.y - heightOffset, width, height)
 end
 
 function Player.update(dt)
+    local x, y = player.x, player.y
     local diagonal = (xDir ~= 0) and (yDir ~= 0)
     if not prevDiagonal and diagonal then
         x = math.floor(x) + .5
@@ -49,9 +63,9 @@ function Player.update(dt)
     x += xVelocity
     y += yVelocity
 
-    local actualX, actualY, collisions, len = world:move(player, x - widthOffset, y - heightOffset)
+    -- local actualX, actualY, collisions, len = world:move(player, x - widthOffset, y - heightOffset, moveFilter)
 
-    x, y = actualX + widthOffset, actualY + heightOffset
+    -- x, y = actualX + widthOffset, actualY + heightOffset
 
     local lerp = 0.1
     cameraXOffset += (x - cameraXOffset - 200) * lerp
@@ -59,4 +73,9 @@ function Player.update(dt)
     gfx.setDrawOffset(-cameraXOffset,-cameraYOffset)
 
     playerImage:drawAnchored(x, y, 0.5, 0.5)
+    player.x, player.y = x, y
+end
+
+function player.damage(amount)
+    health -= amount
 end

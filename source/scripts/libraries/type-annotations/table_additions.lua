@@ -39,6 +39,7 @@ function table.getsize(table) end
 ]]
 ---@param arrayCount integer
 ---@param hashCount integer
+---@return table table
 function table.create(arrayCount, hashCount) end
 
 --[[

@@ -29,12 +29,16 @@ function Queue.new(size)
 	return queue
 end
 
+---@param queue table
+---@param value any
 function Queue.push(queue, value)
 	local last = queue.last + 1
 	queue.last = last
 	queue[last] = value
 end
 
+---@param queue table
+---@return any
 function Queue.pop(queue)
 	local first = queue.first
 	if first > queue.last then

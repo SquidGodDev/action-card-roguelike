@@ -4,19 +4,14 @@ local gfx <const> = pd.graphics
 local getCurTimeMil = pd.getCurrentTimeMilliseconds
 local previous_time = nil
 
-TYPES = {
-    wall = 1,
-    player = 2,
-    enemy = 3
-}
-
 -- Libraries
 local sceneManager = SceneManager
 local bump = bump
 
 local player = Player
-local enemyManager = EnemyManager
 local playerUpdate = player.update
+local enemyManager = EnemyManager
+local enemyUpdate = enemyManager.update
 local world = nil
 
 local leftWallImage = gfx.image.new('assets/images/environment/leftWall')
@@ -57,6 +52,25 @@ function GameScene.init()
         world:add(wallObject, wall.x, wall.y, wall:getSize())
         wall:add()
     end
+
+    local minSpawnX, maxSpawnX = -300, 600
+    local minSpawnY, maxSpawnY = -200, 400
+    enemyManager.init(world, player)
+
+    -- Spawn all at once
+    for _=1, 150 do
+        enemyManager.spawnEnemy(Slime, math.random(minSpawnX, maxSpawnX), math.random(minSpawnY, maxSpawnY))
+    end
+    -- Spawn Timer
+    -- local enemyCount = 0
+    -- local spawnTimer = pd.timer.new(500, function(timer)
+    --     enemyManager.spawnEnemy(Slime, math.random(minSpawnX, maxSpawnX), math.random(minSpawnY, maxSpawnY))
+    --     enemyCount += 1
+    --     if enemyCount >= 30 then
+    --         timer:remove()
+    --     end
+    -- end)
+    -- spawnTimer.repeats = true
 end
 
 function GameScene.update()
@@ -70,6 +84,9 @@ function GameScene.update()
 
     -- Update player
     playerUpdate(dt)
+
+    -- Update enemies
+    enemyUpdate(dt)
 end
 
 function pd.debugDraw()
