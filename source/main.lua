@@ -15,7 +15,6 @@ import 'CoreLibs/timer'
 -- Libraries
 import 'scripts/libraries/SceneManager'
 import 'scripts/libraries/Utilities'
-import 'scripts/libraries/bump'
 
 -- Globals
 import 'scripts/constants'

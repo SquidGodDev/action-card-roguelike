@@ -5,7 +5,6 @@ local gfx <const> = pd.graphics
 Player = {}
 local player = Player
 
-local world = nil
 local moveSpeed = 3 * 30
 local xDir, yDir = 0, 0
 local prevDiagonal = false
@@ -17,16 +16,7 @@ local health = 100
 player.width, player.height = 14, 24
 player.widthOffset, player.heightOffset = player.width/2, 4
 
-local wallType <const> = TYPES.wall
-local moveFilter = function(item, other)
-    if other.type == wallType then
-        return 'slide'
-    else
-        return 'cross'
-    end
-end
-
-function Player.init(bumpWorld)
+function Player.init()
     player.x, player.y = 200, 120
     player.type = TYPES.player
 
@@ -43,9 +33,6 @@ function Player.init(bumpWorld)
         downButtonUp = function() yDir -= 1 end,
     }
     pd.inputHandlers.push(playerInputHandlers)
-
-    -- world = bumpWorld
-    -- world:add(player, player.x - widthOffset, player.y - heightOffset, width, height)
 end
 
 function Player.update(dt)
@@ -62,10 +49,6 @@ function Player.update(dt)
     local yVelocity = normalizedYDir * moveSpeed * dt
     x += xVelocity
     y += yVelocity
-
-    -- local actualX, actualY, collisions, len = world:move(player, x - widthOffset, y - heightOffset, moveFilter)
-
-    -- x, y = actualX + widthOffset, actualY + heightOffset
 
     local lerp = 0.1
     cameraXOffset += (x - cameraXOffset - 200) * lerp

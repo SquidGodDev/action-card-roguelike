@@ -6,13 +6,11 @@ local previous_time = nil
 
 -- Libraries
 local sceneManager = SceneManager
-local bump = bump
 
 local player = Player
 local playerUpdate = player.update
 local enemyManager = EnemyManager
 local enemyUpdate = enemyManager.update
-local world
 
 local hand
 
@@ -47,17 +45,14 @@ function GameScene.init()
         gfx.fillRect(0, 0, 400, 240)
     end)
 
-    world = bump.newWorld(32)
-    player.init(world)
+    player.init()
     for _, wall in ipairs(walls) do
-        local wallObject = {type = TYPES.wall}
-        world:add(wallObject, wall.x, wall.y, wall:getSize())
         wall:add()
     end
 
     local minSpawnX, maxSpawnX = -300, 600
     local minSpawnY, maxSpawnY = -200, 400
-    enemyManager.init(world, player)
+    enemyManager.init(player)
 
     -- Spawn all at once
     for _=1, 10 do
@@ -119,10 +114,5 @@ function GameScene.update()
 end
 
 function pd.debugDraw()
-    if world then
-        local rects = world:getRects()
-        for _, rect in pairs(rects) do
-            gfx.drawRect(rect.x, rect.y, rect.w, rect.h)
-        end
-    end
+    -- Nothing yet
 end

@@ -33,19 +33,9 @@ enemyManager.enemyMoveTime = enemyMoveTime
 enemyManager.enemyAttackTime = enemyAttackTime
 enemyManager.enemyMoveState = enemyMoveState
 
-local world
 local player
 local playerWidthOffset, playerHeightOffset
 local playerWidth, playerHeight
-
-local wallType <const> = TYPES.wall
-local moveFilter = function(item, other)
-    if other.type == wallType then
-        return 'slide'
-    else
-        return 'cross'
-    end
-end
 
 local function overlapsPlayer(index, pTLX, pTLY, pBRX, pBRY, topLeftX, topLeftY)
     local bottomRightX = topLeftX + enemyWidth[index]
@@ -62,8 +52,7 @@ local function overlapsPlayer(index, pTLX, pTLY, pBRX, pBRY, topLeftX, topLeftY)
     end
 end
 
-function EnemyManager.init(bumpWorld, playerObject)
-    world = bumpWorld
+function EnemyManager.init(playerObject)
     player = playerObject
     playerWidthOffset, playerHeightOffset = player.widthOffset, player.heightOffset
     playerWidth, playerHeight = player.width, player.height
@@ -104,8 +93,6 @@ function EnemyManager.update(dt)
 
         local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex]
         local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex]
-        -- local actualX, actualY, collisions, len = world:move(enemyObject[enemyIndex], x + enemySpeedX[enemyIndex], y + enemySpeedY[enemyIndex], moveFilter)
-        -- x, y = actualX, actualY
         enemyX[enemyIndex] = x
         enemyY[enemyIndex] = y
 
@@ -162,10 +149,6 @@ function EnemyManager.spawnEnemy(enemy, x, y)
     enemy.moveFunction(enemyIndex, player)
 
     enemyImage[enemyIndex] = enemy.image
-
-    -- local object = {type = TYPES.enemy, index = enemyIndex}
-    -- world:add(object, x, y, enemy.image:getSize())
-    -- enemyObject[enemyIndex] = object
 
     enemyWidth[enemyIndex], enemyHeight[enemyIndex] = enemy.image:getSize()
 
