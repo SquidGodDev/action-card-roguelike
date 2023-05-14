@@ -66,42 +66,52 @@ function EnemyManager.init(playerObject)
     activeIndexes = table.create(maxEnemyCount, 0)
 end
 
-function EnemyManager.update(dt)
-    local playerTopLeftX = player.x - playerWidthOffset
-    local playerTopLeftY = player.y - playerHeightOffset
-    local playerBottomRightX = playerTopLeftX + playerWidth
-    local playerBottomRightY = playerTopLeftY + playerHeight
-    for i=1, #activeIndexes do
-        local enemyIndex <const> = activeIndexes[i]
-        local moveTime = enemyMoveTime[enemyIndex]
-        moveTime -= dt
-        if moveTime <= 0 then
-            enemyMovementFunction[enemyIndex](enemyIndex, player)
-        else
-            enemyMoveTime[enemyIndex] = moveTime
+function EnemyManager.update(dt, onlyDraw)
+    if onlyDraw then
+        for i=1, #activeIndexes do
+            local enemyIndex <const> = activeIndexes[i]
+            local x = enemyX[enemyIndex]
+            local y = enemyY[enemyIndex]
+            enemyImage[enemyIndex]:draw(x, y)
         end
-
-        local attackFunction = enemyAttackFunction[enemyIndex]
-        if attackFunction then
-            local attackTime = enemyAttackTime[enemyIndex]
-            attackTime -= dt
-            if attackTime <= 0 then
-                attackFunction(enemyIndex, player)
+    else
+        local playerX, playerY = player.x, player.y
+        local playerTopLeftX = playerX - playerWidthOffset
+        local playerTopLeftY = playerY - playerHeightOffset
+        local playerBottomRightX = playerTopLeftX + playerWidth
+        local playerBottomRightY = playerTopLeftY + playerHeight
+        for i=1, #activeIndexes do
+            local enemyIndex <const> = activeIndexes[i]
+            local moveTime = enemyMoveTime[enemyIndex]
+            moveTime -= dt
+            if moveTime <= 0 then
+                enemyMovementFunction[enemyIndex](dt, enemyIndex, playerX, playerY)
             else
-                enemyAttackTime[enemyIndex] = attackTime
+                enemyMoveTime[enemyIndex] = moveTime
             end
+
+            local attackFunction = enemyAttackFunction[enemyIndex]
+            if attackFunction then
+                local attackTime = enemyAttackTime[enemyIndex]
+                attackTime -= dt
+                if attackTime <= 0 then
+                    attackFunction(enemyIndex, playerX, playerY)
+                else
+                    enemyAttackTime[enemyIndex] = attackTime
+                end
+            end
+
+            local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex]
+            local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex]
+            enemyX[enemyIndex] = x
+            enemyY[enemyIndex] = y
+
+            if overlapsPlayer(enemyIndex, playerTopLeftX, playerTopLeftY, playerBottomRightX, playerBottomRightY, x, y) then
+                player.damage(1)
+            end
+
+            enemyImage[enemyIndex]:draw(x, y)
         end
-
-        local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex]
-        local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex]
-        enemyX[enemyIndex] = x
-        enemyY[enemyIndex] = y
-
-        if overlapsPlayer(enemyIndex, playerTopLeftX, playerTopLeftY, playerBottomRightX, playerBottomRightY, x, y) then
-            player.damage(1)
-        end
-
-        enemyImage[enemyIndex]:draw(x, y)
     end
 end
 
@@ -132,8 +142,8 @@ end
 -- Enemy Object:
 --  health
 --  image
---  attackFunction(index, player, isInit) [optional]
---  moveFunction(index, player)
+--  attackFunction(index, playerX, playerY, isInit) [optional]
+--  moveFunction(dt, index, playerX, playerY)
 function EnemyManager.spawnEnemy(enemy, x, y)
     if enemyCount >= maxEnemyCount then
         return
@@ -147,11 +157,11 @@ function EnemyManager.spawnEnemy(enemy, x, y)
     enemyY[enemyIndex] = y
     enemyAttackFunction[enemyIndex] = enemy.attackFunction
     if enemy.attackFunction then
-        enemy.attackFunction(enemyIndex, player, true)
+        enemy.attackFunction(enemyIndex, player.x, player.y, true)
     end
     enemyMoveState[enemyIndex] = 0
     enemyMovementFunction[enemyIndex] = enemy.moveFunction
-    enemy.moveFunction(enemyIndex, player)
+    enemy.moveFunction(0.033, enemyIndex, player.x, player.y)
 
     enemyImage[enemyIndex] = enemy.image
 

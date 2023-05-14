@@ -32,23 +32,25 @@ for i=1, MAX_HAND_SIZE do
     table.insert(cardPlacements, placements)
 end
 
-
 function Hand:init(deck, game)
     self.deck = deck
     self.game = game
     -- self.player = game.player
 
-    self.active = true
+    self.active = false
     self.startingDrawCount = 5
 
     self.cards = {}
     self.cardBaseY = 190
     self.cardSelectY = 170
-    self.cardSelectIndex = 1
+    self.cardOutY = 250
+    self.cardY = self.cardOutY
 
+    self.animateTimer = nil
     self.cardAnimationLerpSpeed = 0.2
 
     self.handSize = 1
+    self.cardSelectIndex = 1
 end
 
 function Hand:update()
@@ -58,7 +60,7 @@ function Hand:update()
         local card = self.cards[i]
         local cardTargetX = cardPlacement[i]
         local cardX = lerp(card.x, cardTargetX, self.cardAnimationLerpSpeed)
-        local cardTargetY = self.cardBaseY
+        local cardTargetY = self.cardY
         if i == self.cardSelectIndex and self.active then
             cardTargetY = self.cardSelectY
         end
@@ -69,17 +71,53 @@ function Hand:update()
 end
 
 function Hand:selectCardLeft()
-    if #self.cards <= 0 or self.cardSelectIndex <= 1 then
+    if #self.cards <= 0 then
         return
     end
-    self.cardSelectIndex -= 1
+    self.cardSelectIndex = math.ringInt(self.cardSelectIndex - 1, 1, #self.cards)
 end
 
 function Hand:selectCardRight()
-    if #self.cards <= 0 or self.cardSelectIndex >= #self.cards then
+    if #self.cards <= 0 then
         return
     end
-    self.cardSelectIndex += 1
+    self.cardSelectIndex = math.ringInt(self.cardSelectIndex + 1, 1, #self.cards)
+end
+
+function Hand:selectCard()
+    if #self.cards <= 0 then
+        return
+    end
+    local playedCard = self.cards[self.cardSelectIndex]
+    if playedCard:isAimable() then
+        self:playCard()
+        self:dismissHand()
+    else
+        self:playCard()
+        self:dismissHand()
+    end
+end
+
+function Hand:playCard()
+    if #self.cards <= 0 then
+        return
+    end
+
+    local playedCard = self.cards[self.cardSelectIndex]
+    table.remove(self.cards, self.cardSelectIndex)
+    if self.cardSelectIndex > #self.cards then
+        self.cardSelectIndex = #self.cards
+    end
+    self.deck:discard(playedCard)
+    local animateTimer = pd.timer.new(700, playedCard.y, -120, pd.easingFunctions.outCubic)
+    animateTimer.updateCallback = function(timer)
+        playedCard:moveTo(playedCard.x, timer.value)
+        playedCard:update()
+    end
+end
+
+function Hand:drawStartingHand()
+    self:drawCard(self.startingDrawCount)
 end
 
 function Hand:drawCard(count)
@@ -96,7 +134,49 @@ function Hand:addCard(card)
     if #self.cards >= MAX_HAND_SIZE or not card then
         return
     end
-    card:moveTo(-50, self.cardBaseY)
+    card:moveTo(-50, self.cardY)
     table.insert(self.cards, 1, card)
     self.cardSelectIndex = 1
 end
+
+function Hand:activateHand()
+    if self.active then
+        return
+    end
+    self.active = true
+
+    self:animateIn()
+end
+
+function Hand:dismissHand()
+    self:deactivateHand()
+    self.game.switchToMoving()
+end
+
+function Hand:deactivateHand()
+    if not self.active then
+        return
+    end
+    self.active = false
+
+    self:animateOut()
+end
+
+function Hand:animateIn()
+    if self.animateTimer then
+        self.animateTimer:remove()
+    end
+    self.cardY = self.cardBaseY
+end
+
+function Hand:animateOut()
+    if self.animateTimer then
+        self.animateTimer:remove()
+    end
+    self.cardY = self.cardOutY
+    self.animateTimer = pd.timer.new(500)
+    self.animateTimer.updateCallback = function()
+        self:update()
+    end
+end
+

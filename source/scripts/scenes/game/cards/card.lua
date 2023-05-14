@@ -3,13 +3,18 @@ local gfx <const> = pd.graphics
 
 local cardBase <const> = gfx.imagetable.new('assets/images/cards/cardBase')
 
-
 class('Card').extends()
 
 function Card:init(x, y, data)
+    -- Data
+    self.aimable = data.stats.aimable
+
+    -- Drawing
     self.baseImagetable = self:createCardImagetable(data)
     self.imagetable = self:getCardImagetableWithCost(data.stats.cost)
     self.x, self.y = x, y
+
+    -- Animation
     self.index = math.random(1, #self.imagetable)
     self.frameTime = 6
     self.frameCounter = math.random(0, self.frameTime)
@@ -22,6 +27,10 @@ function Card:update()
         self.index = math.ringInt(self.index + 1, 1, #self.imagetable)
     end
     self.imagetable[self.index]:drawIgnoringOffset(self.x, self.y)
+end
+
+function Card:isAimable()
+    return self.aimable
 end
 
 function Card:moveTo(x, y)

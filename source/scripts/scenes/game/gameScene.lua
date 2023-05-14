@@ -13,6 +13,12 @@ local enemyManager = EnemyManager
 local enemyUpdate = enemyManager.update
 
 local hand
+local STATES <const> = {
+    moving = 1,
+    selecting = 2,
+    aiming = 3
+}
+local state = STATES.moving
 
 local leftWallImage = gfx.image.new('assets/images/environment/leftWall')
 local rightWallImage = gfx.image.new('assets/images/environment/rightWall')
@@ -38,24 +44,30 @@ local walls = {
 }
 
 GameScene = {}
+local gameScene = GameScene
 
 function GameScene.init()
+    -- Environment
     gfx.sprite.setBackgroundDrawingCallback(function()
         gfx.setColor(gfx.kColorBlack)
         gfx.fillRect(0, 0, 400, 240)
     end)
 
-    player.init()
     for _, wall in ipairs(walls) do
         wall:add()
     end
 
+    -- Game state
+    player.init()
+    state = STATES.moving
+
+    -- Enemies
     local minSpawnX, maxSpawnX = -300, 600
     local minSpawnY, maxSpawnY = -200, 400
     enemyManager.init(player)
 
     -- Spawn all at once
-    for _=1, 10 do
+    for _=1, 30 do
         enemyManager.spawnEnemy(Slime, math.random(minSpawnX, maxSpawnX), math.random(minSpawnY, maxSpawnY))
     end
     -- Spawn Timer
@@ -80,8 +92,10 @@ function GameScene.init()
         local card = cardList[math.random(#cardList)]
         deckData[i] = card
     end
+    -- =======================
     local deck = Deck(deckData)
-    hand = Hand(deck, nil)
+    hand = Hand(deck, gameScene)
+    hand:drawStartingHand()
 end
 
 function GameScene.update()
@@ -93,28 +107,49 @@ function GameScene.update()
 	end
 	previous_time = current_time
 
-    -- Update player
-    playerUpdate(dt)
+    if state == STATES.moving then
+        -- Update player
+        playerUpdate(dt)
 
-    -- Update enemies
-    enemyUpdate(dt)
+        -- Update enemies
+        enemyUpdate(dt)
 
-    --Update hand
-    hand:update()
+        if pd.buttonJustPressed(pd.kButtonA) then
+            gameScene.revealHand()
+        end
+    elseif state == STATES.selecting then
+        -- Draw player
+        playerUpdate(dt, true)
 
-    if pd.buttonJustPressed(pd.kButtonA) then
-        hand:drawCard()
-    end
+        -- Draw enemies
+        enemyUpdate(dt, true)
 
-    if pd.buttonJustPressed(pd.kButtonLeft) then
-        hand:selectCardLeft()
-    elseif pd.buttonJustPressed(pd.kButtonRight) then
-        hand:selectCardRight()
+        if      pd.buttonJustPressed(pd.kButtonLeft)    then hand:selectCardLeft()
+        elseif  pd.buttonJustPressed(pd.kButtonRight)   then hand:selectCardRight()
+        elseif  pd.buttonJustPressed(pd.kButtonB)       then hand:dismissHand()
+        elseif  pd.buttonJustPressed(pd.kButtonA)       then hand:selectCard() end
+
+        -- Update hand
+        hand:update()
+    elseif state == STATES.aiming then
+        -- Handle aiming
     end
 end
 
+function GameScene.switchToAiming()
+   state = STATES.aiming
+end
+
+function GameScene.switchToMoving()
+    state = STATES.moving
+end
+
+function GameScene.revealHand()
+    state = STATES.selecting
+    hand:activateHand()
+end
+
 function pd.debugDraw()
-    -- Nothing yet
     local playerHitboxX = player.x - player.widthOffset
     local playerHitboxY = player.y - player.heightOffset
     gfx.drawRect(playerHitboxX, playerHitboxY, player.width, player.height)

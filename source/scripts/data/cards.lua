@@ -6,6 +6,7 @@ CARDS = {
         imagePath = "assets/images/cards/fireball",
         sfx = "",
         stats = {
+            aimable = true,
             cost = 1,
             damage = 3
         }
@@ -14,6 +15,7 @@ CARDS = {
         imagePath = "assets/images/cards/stoneWall",
         sfx = "",
         stats = {
+            aimable = false,
             cost = 1,
             shield = 3
         }
@@ -22,6 +24,7 @@ CARDS = {
         imagePath = "assets/images/cards/zap",
         sfx = "",
         stats = {
+            aimable = true,
             cost = 0,
             damage = 1
         }
@@ -30,6 +33,7 @@ CARDS = {
         imagePath = "assets/images/cards/lightningStrike",
         sfx = "",
         stats = {
+            aimable = true,
             cost = 2,
             damage = 2
         }
@@ -38,6 +42,7 @@ CARDS = {
         imagePath = "assets/images/cards/investigate",
         sfx = "",
         stats = {
+            aimable = false,
             cost = 1,
             drawCount = 2
         }
