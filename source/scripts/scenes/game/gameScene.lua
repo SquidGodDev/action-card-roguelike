@@ -115,4 +115,16 @@ end
 
 function pd.debugDraw()
     -- Nothing yet
+    local playerHitboxX = player.x - player.widthOffset
+    local playerHitboxY = player.y - player.heightOffset
+    gfx.drawRect(playerHitboxX, playerHitboxY, player.width, player.height)
+    local em = enemyManager
+    local activeEnemyIndexes = em.getActiveIndexes()
+    if activeEnemyIndexes then
+        for _, index in ipairs(activeEnemyIndexes) do
+            local x, y = em.enemyX[index], em.enemyY[index]
+            local w, h = em.enemyWidth[index], em.enemyHeight[index]
+            gfx.drawRect(x, y, w, h)
+        end
+    end
 end

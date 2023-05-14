@@ -11,7 +11,7 @@ local prevDiagonal = false
 local cameraXOffset, cameraYOffset = 0, 0
 local playerImage = gfx.image.new('assets/images/player/player')
 
-local health = 100
+local health
 
 player.width, player.height = 14, 24
 player.widthOffset, player.heightOffset = player.width/2, 4
@@ -20,7 +20,7 @@ function Player.init()
     player.x, player.y = 200, 120
     player.type = TYPES.player
 
-    health = 100
+    health = 10000
 
     local playerInputHandlers = {
         leftButtonDown = function() xDir -= 1 end,
@@ -57,6 +57,10 @@ function Player.update(dt)
 
     playerImage:drawAnchored(x, y, 0.5, 0.5)
     player.x, player.y = x, y
+    local healthImage = gfx.imageWithText(tostring(health), 100, 30)
+    gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+    healthImage:drawIgnoringOffset(2, 218)
+    gfx.setImageDrawMode(gfx.kDrawModeCopy)
 end
 
 function player.damage(amount)

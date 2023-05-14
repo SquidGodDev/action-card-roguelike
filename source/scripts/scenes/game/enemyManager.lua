@@ -20,7 +20,6 @@ local enemyMoveTime <const> = table.create(maxEnemyCount, 0)
 local enemyAttackFunction <const> = table.create(maxEnemyCount, 0)
 local enemyAttackTime <const> = table.create(maxEnemyCount, 0)
 local enemyMoveState <const> = table.create(maxEnemyCount, 0)
-local enemyObject <const> = table.create(maxEnemyCount, 0)
 local enemyImage <const> = table.create(maxEnemyCount, 0)
 local enemyWidth <const> = table.create(maxEnemyCount, 0)
 local enemyHeight <const> = table.create(maxEnemyCount, 0)
@@ -32,6 +31,8 @@ enemyManager.enemySpeedY = enemySpeedY
 enemyManager.enemyMoveTime = enemyMoveTime
 enemyManager.enemyAttackTime = enemyAttackTime
 enemyManager.enemyMoveState = enemyMoveState
+enemyManager.enemyWidth = enemyWidth
+enemyManager.enemyHeight = enemyHeight
 
 local player
 local playerWidthOffset, playerHeightOffset
@@ -102,6 +103,10 @@ function EnemyManager.update(dt)
 
         enemyImage[enemyIndex]:draw(x, y)
     end
+end
+
+function EnemyManager.getActiveIndexes()
+    return activeIndexes
 end
 
 function EnemyManager.removeEnemy(enemyIndex)
