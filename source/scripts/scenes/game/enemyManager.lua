@@ -5,7 +5,7 @@ EnemyManager = {}
 local enemyManager = EnemyManager
 
 -- Enemy List
-local maxEnemyCount <const> = 200
+local maxEnemyCount <const> = 50
 local queue <const> = Queue
 local availableIndexes = nil
 local activeIndexes = nil

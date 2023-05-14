@@ -12,7 +12,9 @@ local player = Player
 local playerUpdate = player.update
 local enemyManager = EnemyManager
 local enemyUpdate = enemyManager.update
-local world = nil
+local world
+
+local hand
 
 local leftWallImage = gfx.image.new('assets/images/environment/leftWall')
 local rightWallImage = gfx.image.new('assets/images/environment/rightWall')
@@ -58,7 +60,7 @@ function GameScene.init()
     enemyManager.init(world, player)
 
     -- Spawn all at once
-    for _=1, 150 do
+    for _=1, 10 do
         enemyManager.spawnEnemy(Slime, math.random(minSpawnX, maxSpawnX), math.random(minSpawnY, maxSpawnY))
     end
     -- Spawn Timer
@@ -71,6 +73,20 @@ function GameScene.init()
     --     end
     -- end)
     -- spawnTimer.repeats = true
+
+    -- Deck
+    -- ===== Temp values =====
+    local cardList = {}
+    for _, card in pairs(CARDS) do
+        table.insert(cardList, card)
+    end
+    deckData = {}
+    for i=1,20 do
+        local card = cardList[math.random(#cardList)]
+        deckData[i] = card
+    end
+    local deck = Deck(deckData)
+    hand = Hand(deck, nil)
 end
 
 function GameScene.update()
@@ -87,6 +103,19 @@ function GameScene.update()
 
     -- Update enemies
     enemyUpdate(dt)
+
+    --Update hand
+    hand:update()
+
+    if pd.buttonJustPressed(pd.kButtonA) then
+        hand:drawCard()
+    end
+
+    if pd.buttonJustPressed(pd.kButtonLeft) then
+        hand:selectCardLeft()
+    elseif pd.buttonJustPressed(pd.kButtonRight) then
+        hand:selectCardRight()
+    end
 end
 
 function pd.debugDraw()
