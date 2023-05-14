@@ -32,10 +32,10 @@ for i=1, MAX_HAND_SIZE do
     table.insert(cardPlacements, placements)
 end
 
-function Hand:init(deck, game)
+function Hand:init(deck, game, player)
     self.deck = deck
     self.game = game
-    -- self.player = game.player
+    self.player = player
 
     self.active = false
     self.startingDrawCount = 5
@@ -90,15 +90,15 @@ function Hand:selectCard()
     end
     local playedCard = self.cards[self.cardSelectIndex]
     if playedCard:isAimable() then
-        self:playCard()
-        self:dismissHand()
+        self:deactivateHand()
+        self.game.switchToAiming()
     else
         self:playCard()
         self:dismissHand()
     end
 end
 
-function Hand:playCard()
+function Hand:playCard(angle)
     if #self.cards <= 0 then
         return
     end
@@ -108,12 +108,14 @@ function Hand:playCard()
     if self.cardSelectIndex > #self.cards then
         self.cardSelectIndex = #self.cards
     end
+    playedCard:cast(self.player.x, self.player.y, angle)
     self.deck:discard(playedCard)
     local animateTimer = pd.timer.new(700, playedCard.y, -120, pd.easingFunctions.outCubic)
     animateTimer.updateCallback = function(timer)
         playedCard:moveTo(playedCard.x, timer.value)
         playedCard:update()
     end
+    self:drawCard()
 end
 
 function Hand:drawStartingHand()
@@ -136,7 +138,6 @@ function Hand:addCard(card)
     end
     card:moveTo(-50, self.cardY)
     table.insert(self.cards, 1, card)
-    self.cardSelectIndex = 1
 end
 
 function Hand:activateHand()

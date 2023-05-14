@@ -9,16 +9,21 @@ local enemyMoveState <const> = EnemyManager.enemyMoveState
 local sqrt = math.sqrt
 local random = math.random
 
+local pd <const> = playdate
+local gfx <const> = pd.graphics
+
+local refreshRate = pd.display.getRefreshRate()
+
 local waitTime <const> = 2
 local moveTime <const> = 1
-local moveSpeed <const> = 2 * 30
+local moveSpeed <const> = 2 * refreshRate
 
 Slime = {
-    health = 10,
+    health = 2,
     image = playdate.graphics.image.new('assets/images/enemies/slime')
 }
 
-function Slime.moveFunction(dt, index, playerX, playerY)
+function Slime.moveFunction(index, playerX, playerY)
     local moveState = enemyMoveState[index]
     if moveState == 0 then
         enemySpeedX[index] = 0
@@ -31,8 +36,8 @@ function Slime.moveFunction(dt, index, playerX, playerY)
         local xDiff = playerX - x
         local yDiff = playerY - y
         local magnitude = sqrt(xDiff * xDiff + yDiff * yDiff)
-        enemySpeedX[index] = (xDiff / magnitude) * (moveSpeed + random(-10, 10)) * dt
-        enemySpeedY[index] = (yDiff / magnitude) * (moveSpeed + random(-10, 10)) * dt
+        enemySpeedX[index] = (xDiff / magnitude) * (moveSpeed + random(-10, 10))
+        enemySpeedY[index] = (yDiff / magnitude) * (moveSpeed + random(-10, 10))
         enemyMoveTime[index] = moveTime + random(-50, 50) / 100
         enemyMoveState[index] = 0
     end

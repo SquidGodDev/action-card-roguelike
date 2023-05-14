@@ -8,6 +8,8 @@ class('Card').extends()
 function Card:init(x, y, data)
     -- Data
     self.aimable = data.stats.aimable
+    self.castFunction = data.cast
+    self.data = data
 
     -- Drawing
     self.baseImagetable = self:createCardImagetable(data)
@@ -27,6 +29,10 @@ function Card:update()
         self.index = math.ringInt(self.index + 1, 1, #self.imagetable)
     end
     self.imagetable[self.index]:drawIgnoringOffset(self.x, self.y)
+end
+
+function Card:cast(x, y, angle)
+    self.castFunction(x, y, angle, self.data)
 end
 
 function Card:isAimable()

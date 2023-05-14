@@ -1,19 +1,24 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+local refreshRate <const> = pd.display.getRefreshRate()
+
 CARDS = {
     fireball = {
-        imagePath = "assets/images/cards/fireball",
-        sfx = "",
+        imagePath = 'assets/images/cards/fireball',
+        sfx = '',
+        cast = ProjectileCard.cast,
         stats = {
             aimable = true,
             cost = 1,
-            damage = 3
+            speed = 5 * refreshRate,
+            diameter = 12,
+            damage = 2
         }
     },
     stoneWall = {
-        imagePath = "assets/images/cards/stoneWall",
-        sfx = "",
+        imagePath = 'assets/images/cards/stoneWall',
+        sfx = '',
         stats = {
             aimable = false,
             cost = 1,
@@ -21,8 +26,8 @@ CARDS = {
         }
     },
     zap = {
-        imagePath = "assets/images/cards/zap",
-        sfx = "",
+        imagePath = 'assets/images/cards/zap',
+        sfx = '',
         stats = {
             aimable = true,
             cost = 0,
@@ -30,8 +35,8 @@ CARDS = {
         }
     },
     lightningStrike = {
-        imagePath = "assets/images/cards/lightningStrike",
-        sfx = "",
+        imagePath = 'assets/images/cards/lightningStrike',
+        sfx = '',
         stats = {
             aimable = true,
             cost = 2,
@@ -39,8 +44,8 @@ CARDS = {
         }
     },
     investigate = {
-        imagePath = "assets/images/cards/investigate",
-        sfx = "",
+        imagePath = 'assets/images/cards/investigate',
+        sfx = '',
         stats = {
             aimable = false,
             cost = 1,

@@ -85,7 +85,7 @@ function EnemyManager.update(dt, onlyDraw)
             local moveTime = enemyMoveTime[enemyIndex]
             moveTime -= dt
             if moveTime <= 0 then
-                enemyMovementFunction[enemyIndex](dt, enemyIndex, playerX, playerY)
+                enemyMovementFunction[enemyIndex](enemyIndex, playerX, playerY)
             else
                 enemyMoveTime[enemyIndex] = moveTime
             end
@@ -101,8 +101,8 @@ function EnemyManager.update(dt, onlyDraw)
                 end
             end
 
-            local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex]
-            local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex]
+            local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex] * dt
+            local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex] * dt
             enemyX[enemyIndex] = x
             enemyY[enemyIndex] = y
 
@@ -124,7 +124,7 @@ function EnemyManager.removeEnemy(enemyIndex)
     if activeTableIndex then
         table.remove(activeIndexes, activeTableIndex)
     end
-    availableIndexes.push(enemyIndex)
+    queue.push(availableIndexes, enemyIndex)
     enemyCount -= 1
 end
 
@@ -161,7 +161,7 @@ function EnemyManager.spawnEnemy(enemy, x, y)
     end
     enemyMoveState[enemyIndex] = 0
     enemyMovementFunction[enemyIndex] = enemy.moveFunction
-    enemy.moveFunction(0.033, enemyIndex, player.x, player.y)
+    enemy.moveFunction(enemyIndex, player.x, player.y)
 
     enemyImage[enemyIndex] = enemy.image
 

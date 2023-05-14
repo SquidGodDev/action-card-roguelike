@@ -11,6 +11,9 @@ local player = Player
 local playerUpdate = player.update
 local enemyManager = EnemyManager
 local enemyUpdate = enemyManager.update
+local projectileManager = ProjectileManager
+local projectileUpdate = projectileManager.update
+local aimManager
 
 local hand
 local STATES <const> = {
@@ -60,6 +63,8 @@ function GameScene.init()
     -- Game state
     player.init()
     state = STATES.moving
+    projectileManager.init()
+    aimManager = AimManager(player)
 
     -- Enemies
     local minSpawnX, maxSpawnX = -300, 600
@@ -84,9 +89,10 @@ function GameScene.init()
     -- Deck
     -- ===== Temp values =====
     local cardList = {}
-    for _, card in pairs(CARDS) do
-        table.insert(cardList, card)
-    end
+    cardList[1] = CARDS.fireball
+    -- for _, card in pairs(CARDS) do
+    --     table.insert(cardList, card)
+    -- end
     deckData = {}
     for i=1,20 do
         local card = cardList[math.random(#cardList)]
@@ -94,7 +100,7 @@ function GameScene.init()
     end
     -- =======================
     local deck = Deck(deckData)
-    hand = Hand(deck, gameScene)
+    hand = Hand(deck, gameScene, player)
     hand:drawStartingHand()
 end
 
@@ -114,6 +120,9 @@ function GameScene.update()
         -- Update enemies
         enemyUpdate(dt)
 
+        -- Update projectiles
+        projectileUpdate(dt)
+
         if pd.buttonJustPressed(pd.kButtonA) then
             gameScene.revealHand()
         end
@@ -124,15 +133,36 @@ function GameScene.update()
         -- Draw enemies
         enemyUpdate(dt, true)
 
-        if      pd.buttonJustPressed(pd.kButtonLeft)    then hand:selectCardLeft()
-        elseif  pd.buttonJustPressed(pd.kButtonRight)   then hand:selectCardRight()
-        elseif  pd.buttonJustPressed(pd.kButtonB)       then hand:dismissHand()
-        elseif  pd.buttonJustPressed(pd.kButtonA)       then hand:selectCard() end
+        -- Draw projectiles
+        projectileUpdate(dt, true)
+
+        local crankTicks = pd.getCrankTicks(8)
+        if      pd.buttonJustPressed(pd.kButtonLeft) or crankTicks == -1 then hand:selectCardLeft()
+        elseif  pd.buttonJustPressed(pd.kButtonRight) or crankTicks == 1 then hand:selectCardRight()
+        elseif  pd.buttonJustPressed(pd.kButtonB) or pd.buttonJustPressed(pd.kButtonDown) then hand:dismissHand()
+        elseif  pd.buttonJustPressed(pd.kButtonA) or pd.buttonJustPressed(pd.kButtonUp) then hand:selectCard() end
 
         -- Update hand
         hand:update()
     elseif state == STATES.aiming then
+        -- Draw player
+        playerUpdate(dt, true)
+
+        -- Draw enemies
+        enemyUpdate(dt, true)
+
+        -- Draw projectiles
+        projectileUpdate(dt, true)
+
         -- Handle aiming
+        aimManager:update()
+
+        if pd.buttonJustPressed(pd.kButtonA) or pd.buttonJustPressed(pd.kButtonUp) then
+            hand:playCard(aimManager:getAngle())
+            gameScene.switchToMoving()
+        elseif pd.buttonJustPressed(pd.kButtonB) or pd.buttonJustPressed(pd.kButtonDown) then
+            gameScene.revealHand()
+        end
     end
 end
 
