@@ -5,6 +5,9 @@ local getCurTimeMil = pd.getCurrentTimeMilliseconds
 local previous_time = nil
 
 local lerp <const> = function(a, b, t)
+    if a == b then
+        return a
+    end
     return a * (1-t) + b * t
 end
 
