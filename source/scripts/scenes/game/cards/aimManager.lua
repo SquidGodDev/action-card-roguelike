@@ -9,8 +9,7 @@ class('AimManager').extends()
 
 function AimManager:init(player)
     self.player = player
-    self.angle = pd.getCrankPosition()
-    self.drawAngle = self.angle
+    self.angle = 0
 
     self.moveAcceleration = 0.5
     self.maxMoveVelocity = 10
@@ -19,15 +18,19 @@ function AimManager:init(player)
     self.lerpSpeed = 0.4
 end
 
+function AimManager:activate()
+    self.angle = pd.getCrankPosition()
+end
+
 function AimManager:update()
     local crankChange = pd.getCrankChange()
     if math.abs(crankChange) > 0 then
         self.angle += crankChange
         self.moveVelocity = 0
     else
-        if pd.buttonIsPressed(pd.kButtonLeft) then
+        if pd.buttonIsPressed(pd.kButtonLeft) or pd.buttonIsPressed(pd.kButtonUp) then
             self:moveAngleLeft()
-        elseif pd.buttonIsPressed(pd.kButtonRight) then
+        elseif pd.buttonIsPressed(pd.kButtonRight) or pd.buttonIsPressed(pd.kButtonDown) then
             self:moveAngleRight()
         else
             self.moveVelocity = 0

@@ -106,8 +106,8 @@ function ProjectileManager.createProjectile(x, y, xSpeed, ySpeed, diameter, dama
     end
     local projectileIndex <const> = queue.pop(availableIndexes)
     table.insert(activeIndexes, projectileIndex)
-    projectileX[projectileIndex] = x
-    projectileY[projectileIndex] = y
+    projectileX[projectileIndex] = x - diameter / 2
+    projectileY[projectileIndex] = y - diameter / 2
     projectileSpeedX[projectileIndex] = xSpeed
     projectileSpeedY[projectileIndex] = ySpeed
     projectileDiameter[projectileIndex] = diameter

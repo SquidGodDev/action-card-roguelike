@@ -4,6 +4,10 @@ local gfx <const> = pd.graphics
 local getCurTimeMil = pd.getCurrentTimeMilliseconds
 local previous_time = nil
 
+local lerp <const> = function(a, b, t)
+    return a * (1-t) + b * t
+end
+
 -- Libraries
 local sceneManager = SceneManager
 
@@ -22,6 +26,9 @@ local STATES <const> = {
     aiming = 3
 }
 local state = STATES.moving
+local deltaTimeMultiplier = 1
+local slowedTimeMultiplier = 0.05
+local timeLerpRate = 0.2
 
 local leftWallImage = gfx.image.new('assets/images/environment/leftWall')
 local rightWallImage = gfx.image.new('assets/images/environment/rightWall')
@@ -114,27 +121,33 @@ function GameScene.update()
 	previous_time = current_time
 
     if state == STATES.moving then
-        -- Update player
-        playerUpdate(dt)
+        deltaTimeMultiplier = lerp(deltaTimeMultiplier, 1, timeLerpRate)
+        local deltaTime = dt * deltaTimeMultiplier
 
         -- Update enemies
-        enemyUpdate(dt)
+        enemyUpdate(deltaTime)
+
+        -- Update player
+        playerUpdate(deltaTime)
 
         -- Update projectiles
-        projectileUpdate(dt)
+        projectileUpdate(deltaTime)
 
         if pd.buttonJustPressed(pd.kButtonA) then
             gameScene.revealHand()
         end
     elseif state == STATES.selecting then
+        deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
+        local deltaTime = dt * deltaTimeMultiplier
+
+        -- Update enemies
+        enemyUpdate(deltaTime)
+
         -- Draw player
-        playerUpdate(dt, true)
+        playerUpdate(deltaTime, true)
 
-        -- Draw enemies
-        enemyUpdate(dt, true)
-
-        -- Draw projectiles
-        projectileUpdate(dt, true)
+        -- Update projectiles
+        projectileUpdate(deltaTime)
 
         local crankTicks = pd.getCrankTicks(8)
         if      pd.buttonJustPressed(pd.kButtonLeft) or crankTicks == -1 then hand:selectCardLeft()
@@ -145,22 +158,25 @@ function GameScene.update()
         -- Update hand
         hand:update()
     elseif state == STATES.aiming then
-        -- Draw player
-        playerUpdate(dt, true)
+        deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
+        local deltaTime = dt * deltaTimeMultiplier
 
-        -- Draw enemies
-        enemyUpdate(dt, true)
-
-        -- Draw projectiles
-        projectileUpdate(dt, true)
+        -- Update enemies
+        enemyUpdate(deltaTime)
 
         -- Handle aiming
         aimManager:update()
 
-        if pd.buttonJustPressed(pd.kButtonA) or pd.buttonJustPressed(pd.kButtonUp) then
+        -- Draw player
+        playerUpdate(deltaTime, true)
+
+        -- Update projectiles
+        projectileUpdate(deltaTime)
+
+        if pd.buttonJustPressed(pd.kButtonA) then
             hand:playCard(aimManager:getAngle())
             gameScene.switchToMoving()
-        elseif pd.buttonJustPressed(pd.kButtonB) or pd.buttonJustPressed(pd.kButtonDown) then
+        elseif pd.buttonJustPressed(pd.kButtonB) then
             gameScene.revealHand()
         end
     end
@@ -168,6 +184,7 @@ end
 
 function GameScene.switchToAiming()
    state = STATES.aiming
+   aimManager:activate()
 end
 
 function GameScene.switchToMoving()
