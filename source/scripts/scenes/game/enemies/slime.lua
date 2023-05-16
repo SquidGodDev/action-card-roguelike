@@ -20,37 +20,38 @@ local moveSpeed <const> = 1 * refreshRate
 
 Slime = {
     health = 2,
-    image = playdate.graphics.image.new('assets/images/enemies/slime')
+    imagetable = playdate.graphics.imagetable.new('assets/images/enemies/slime'),
+    frameTime = .15 -- 150ms
 }
 
--- function Slime.moveFunction(index, playerX, playerY)
---     local moveState = enemyMoveState[index]
---     if moveState == 0 then
---         enemySpeedX[index] = 0
---         enemySpeedY[index] = 0
---         enemyMoveTime[index] = waitTime + random(-50, 50) / 100
---         enemyMoveState[index] = 1
---     else
---         local x = enemyX[index]
---         local y = enemyY[index]
---         local xDiff = playerX - x
---         local yDiff = playerY - y
---         local magnitude = sqrt(xDiff * xDiff + yDiff * yDiff)
---         enemySpeedX[index] = (xDiff / magnitude) * (moveSpeed + random(-10, 10))
---         enemySpeedY[index] = (yDiff / magnitude) * (moveSpeed + random(-10, 10))
---         enemyMoveTime[index] = moveTime + random(-50, 50) / 100
---         enemyMoveState[index] = 0
---     end
--- end
+function Slime.moveFunction(index, playerX, playerY)
+    local moveState = enemyMoveState[index]
+    if moveState == 0 then
+        enemySpeedX[index] = 0
+        enemySpeedY[index] = 0
+        enemyMoveTime[index] = waitTime + random(-50, 50) / 100
+        enemyMoveState[index] = 1
+    else
+        local x = enemyX[index]
+        local y = enemyY[index]
+        local xDiff = playerX - x
+        local yDiff = playerY - y
+        local magnitude = sqrt(xDiff * xDiff + yDiff * yDiff)
+        enemySpeedX[index] = (xDiff / magnitude) * (moveSpeed + random(-10, 10))
+        enemySpeedY[index] = (yDiff / magnitude) * (moveSpeed + random(-10, 10))
+        enemyMoveTime[index] = moveTime + random(-50, 50) / 100
+        enemyMoveState[index] = 0
+    end
+end
 
 -- Follow AI
-function Slime.moveFunction(index, playerX, playerY)
-    local x = enemyX[index]
-    local y = enemyY[index]
-    local xDiff = playerX - x
-    local yDiff = playerY - y
-    local magnitude = sqrt(xDiff * xDiff + yDiff * yDiff)
-    enemySpeedX[index] = (xDiff / magnitude) * moveSpeed
-    enemySpeedY[index] = (yDiff / magnitude) * moveSpeed
-    enemyMoveTime[index] = 0
-end
+-- function Slime.moveFunction(index, playerX, playerY)
+--     local x = enemyX[index]
+--     local y = enemyY[index]
+--     local xDiff = playerX - x
+--     local yDiff = playerY - y
+--     local magnitude = sqrt(xDiff * xDiff + yDiff * yDiff)
+--     enemySpeedX[index] = (xDiff / magnitude) * moveSpeed
+--     enemySpeedY[index] = (yDiff / magnitude) * moveSpeed
+--     enemyMoveTime[index] = 0
+-- end

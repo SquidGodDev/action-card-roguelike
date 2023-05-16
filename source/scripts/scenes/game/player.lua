@@ -2,8 +2,9 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 local refreshRate <const> = pd.display.getRefreshRate()
+local ringInt <const> = math.ringInt
 
-local performAfterDelay <const> = pd.timer.performAfterDelay
+-- Input Constants
 local buttonIsPressed <const> = pd.buttonIsPressed
 local buttonJustPressed <const> = pd.buttonJustPressed
 local leftButton <const> = pd.kButtonLeft
@@ -18,7 +19,26 @@ local player = Player
 local moveSpeed <const> = 3 * refreshRate
 local prevDiagonal = false
 local cameraXOffset, cameraYOffset = 0, 0
-local playerImage = gfx.image.new('assets/images/player/player')
+local playerImagetable <const> = gfx.imagetable.new('assets/images/player/player')
+local playerImage = playerImagetable[1]
+local frameStart, frameEnd
+local frameIndex
+local frameTime
+local frameTimeCounter
+local idleFrameStart <const>, idleFrameEnd <const> = 1, 2
+local idleFrameTime <const> = .3 -- 300ms
+local runFrameStart <const>, runFrameEnd <const> = 3, 6
+local runFrameTime <const> = .15 -- 150ms
+
+local animationStates <const> = {
+    idle = 1,
+    run = 2,
+    dash = 3
+}
+local animationState = animationStates.idle
+local flippedX <const> = gfx.kImageFlippedX
+local unflipped <const> = gfx.kImageUnflipped
+local flip = unflipped
 
 local dashCooldownTimer = 0
 local dashTimer = 0
@@ -34,11 +54,39 @@ local health
 player.width, player.height = 14, 24
 player.widthOffset, player.heightOffset = player.width/2, 4
 
+local function switchToIdle()
+    animationState = animationStates.idle
+    frameStart, frameEnd = idleFrameStart, idleFrameEnd
+    frameIndex = frameStart
+    frameTime = idleFrameTime
+    frameTimeCounter = frameTime
+    playerImage = playerImagetable[frameIndex]
+end
+
+local function switchToRun()
+    animationState = animationStates.run
+    frameStart, frameEnd = runFrameStart, runFrameEnd
+    frameIndex = frameStart
+    frameTime = runFrameTime
+    frameTimeCounter = frameTime
+    playerImage = playerImagetable[frameIndex]
+end
+
+local function switchToDash()
+    animationState = animationStates.dash
+    frameStart, frameEnd = runFrameStart, runFrameEnd
+    frameIndex = frameStart
+    frameTime = runFrameTime
+    frameTimeCounter = frameTime
+    playerImage = playerImagetable[frameIndex]
+end
+
 function Player.init()
     player.x, player.y = 200, 120
     player.type = TYPES.player
 
     health = 10000
+    switchToIdle()
 
     dashTimer = 0
     dashCooldownTimer = 0
@@ -46,6 +94,12 @@ end
 
 function Player.update(dt, onlyDraw)
     local x, y = player.x, player.y
+    frameTimeCounter -= dt
+    if frameTimeCounter <= 0 then
+        frameIndex = ringInt(frameIndex + 1, frameStart, frameEnd)
+        frameTimeCounter = frameTime
+        playerImage = playerImagetable[frameIndex]
+    end
     if not onlyDraw then
         if dashTimer > 0 then
             dashTimer -= dt
@@ -65,8 +119,14 @@ function Player.update(dt, onlyDraw)
             end
         else
             local xDir, yDir = 0, 0
-            if buttonIsPressed(leftButton)  then xDir -= 1 end
-            if buttonIsPressed(rightButton) then xDir += 1 end
+            if buttonIsPressed(leftButton)  then
+                xDir -= 1
+                flip = flippedX
+            end
+            if buttonIsPressed(rightButton) then
+                xDir += 1
+                flip = unflipped
+            end
             if buttonIsPressed(upButton)    then yDir -= 1 end
             if buttonIsPressed(downButton)  then yDir += 1 end
             local diagonal = (xDir ~= 0) and (yDir ~= 0)
@@ -82,7 +142,18 @@ function Player.update(dt, onlyDraw)
             if dashCooldownTimer > 0 then
                 dashCooldownTimer -= dt
             end
+
+            -- Handle animation state
+            local isIdle = (xDir == 0) and (yDir == 0)
+            if isIdle and animationState ~= animationStates.idle then
+                switchToIdle()
+            elseif not isIdle and animationState ~= animationStates.run then
+                switchToRun()
+            end
+
+            -- Handle dash
             if buttonJustPressed(bButton) and dashCooldownTimer <= 0 then
+                switchToDash()
                 dashCooldownTimer = dashCooldown
                 dashTimer = dashTime
 
@@ -101,7 +172,7 @@ function Player.update(dt, onlyDraw)
         gfx.setDrawOffset(-cameraXOffset,-cameraYOffset)
         player.x, player.y = x, y
     end
-    playerImage:drawAnchored(x, y, 0.5, 0.5)
+    playerImage:drawAnchored(x, y, 0.5, 0.5, flip)
 end
 
 function player.damage(amount)
