@@ -152,7 +152,7 @@ function Player.update(dt, onlyDraw)
             end
 
             -- Handle dash
-            if buttonJustPressed(bButton) and dashCooldownTimer <= 0 then
+            if buttonJustPressed(bButton) and dashCooldownTimer <= 0 and not isIdle then
                 switchToDash()
                 dashCooldownTimer = dashCooldown
                 dashTimer = dashTime
