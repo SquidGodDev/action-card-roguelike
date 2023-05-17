@@ -63,7 +63,14 @@ function ProjectileManager.update(dt, onlyDraw)
             local x = projectileX[projectileIndex]
             local y = projectileY[projectileIndex]
             local diameter = projectileDiameter[projectileIndex]
-            gfx.fillCircleInRect(x, y, diameter, diameter)
+            if projectileIsPlayer[projectileIndex] then
+                gfx.setColor(gfx.kColorBlack)
+                gfx.fillCircleInRect(x, y, diameter, diameter)
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
+            else
+
+            end
         end
     else
         local enemyIndexes = getEnemyIndexes()
@@ -73,6 +80,7 @@ function ProjectileManager.update(dt, onlyDraw)
             local y = projectileY[projectileIndex] + projectileSpeedY[projectileIndex] * dt
             projectileX[projectileIndex] = x
             projectileY[projectileIndex] = y
+            local diameter = projectileDiameter[projectileIndex]
             if projectileIsPlayer[projectileIndex] then
                 local pTLX = x
                 local pTLY = y
@@ -91,11 +99,17 @@ function ProjectileManager.update(dt, onlyDraw)
                     table.remove(activeIndexes, i)
                     queue.push(availableIndexes, projectileIndex)
                 end
+                gfx.setColor(gfx.kColorBlack)
+                gfx.fillCircleInRect(x, y, diameter, diameter)
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
             else
                 -- Handle collision with player
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillCircleInRect(x, y, diameter, diameter)
+                gfx.setColor(gfx.kColorBlack)
+                gfx.fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
             end
-            local diameter = projectileDiameter[projectileIndex]
-            gfx.fillCircleInRect(x, y, diameter, diameter)
         end
     end
 end
@@ -106,8 +120,8 @@ function ProjectileManager.createProjectile(x, y, xSpeed, ySpeed, diameter, dama
     end
     local projectileIndex <const> = queue.pop(availableIndexes)
     table.insert(activeIndexes, projectileIndex)
-    projectileX[projectileIndex] = x - diameter / 2
-    projectileY[projectileIndex] = y - diameter / 2
+    projectileX[projectileIndex] = x + xSpeed / 15 - diameter / 2
+    projectileY[projectileIndex] = y + ySpeed / 15 - diameter / 2
     projectileSpeedX[projectileIndex] = xSpeed
     projectileSpeedY[projectileIndex] = ySpeed
     projectileDiameter[projectileIndex] = diameter
