@@ -21,6 +21,8 @@ local enemyUpdate = enemyManager.update
 local projectileManager = ProjectileManager
 local projectileUpdate = projectileManager.update
 local aimManager
+local particleManager = ParticleManager
+local particleUpdate = particleManager.update
 
 local hand
 local STATES <const> = {
@@ -75,6 +77,7 @@ function GameScene.init()
     state = STATES.moving
     projectileManager.init()
     aimManager = AimManager(player)
+    particleManager.init()
 
     -- Enemies
     local minSpawnX, maxSpawnX = -300, 600
@@ -136,6 +139,9 @@ function GameScene.update()
         -- Update projectiles
         projectileUpdate(deltaTime)
 
+        -- Update particles
+        particleUpdate(deltaTime)
+
         if pd.buttonJustPressed(pd.kButtonA) then
             gameScene.revealHand()
         end
@@ -151,6 +157,9 @@ function GameScene.update()
 
         -- Update projectiles
         projectileUpdate(deltaTime)
+
+        -- Update particles
+        particleUpdate(deltaTime)
 
         local crankTicks = pd.getCrankTicks(8)
         if      pd.buttonJustPressed(pd.kButtonLeft) or crankTicks == -1 then hand:selectCardLeft()
@@ -175,6 +184,9 @@ function GameScene.update()
 
         -- Update projectiles
         projectileUpdate(deltaTime)
+
+        -- Update particles
+        particleUpdate(deltaTime)
 
         if pd.buttonJustPressed(pd.kButtonA) then
             hand:playCard(aimManager:getAngle())

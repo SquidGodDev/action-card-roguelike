@@ -6,12 +6,15 @@ local ringInt = math.ringInt
 EnemyManager = {}
 local enemyManager = EnemyManager
 
+local particleManager = ParticleManager
+local deathParticlesImageTable = gfx.imagetable.new('assets/images/particles/enemyDeathParticles')
+local deathParticlesFrameTime = .02
+
 -- Enemy List
 local maxEnemyCount <const> = 150
 local queue <const> = Queue
 local availableIndexes = nil
 local activeIndexes = nil
-local enemyCount = 0
 local enemyHealth <const> = table.create(maxEnemyCount, 0)
 local enemyX <const> = table.create(maxEnemyCount, 0)
 local enemyY <const> = table.create(maxEnemyCount, 0)
@@ -65,7 +68,6 @@ function EnemyManager.init(playerObject)
     playerWidthOffset, playerHeightOffset = player.widthOffset, player.heightOffset
     playerWidth, playerHeight = player.width, player.height
 
-    enemyCount = 0
     availableIndexes = queue.new(maxEnemyCount)
     for i=1, maxEnemyCount do
         queue.push(availableIndexes, i)
@@ -145,7 +147,6 @@ function EnemyManager.removeEnemy(enemyIndex)
         table.remove(activeIndexes, activeTableIndex)
     end
     queue.push(availableIndexes, enemyIndex)
-    enemyCount -= 1
 end
 
 function EnemyManager.damageEnemy(enemyIndex, damage)
@@ -153,6 +154,8 @@ function EnemyManager.damageEnemy(enemyIndex, damage)
     health -= damage
     if health <= 0 then
         enemyManager.removeEnemy(enemyIndex)
+        local x, y = enemyX[enemyIndex] + enemyWidth[enemyIndex]/2, enemyY[enemyIndex] + enemyHeight[enemyIndex]/2
+        particleManager.addParticle(x, y, deathParticlesImageTable, deathParticlesFrameTime)
         return
     end
     flashTimer[enemyIndex] = .15
@@ -165,7 +168,7 @@ end
 --  attackFunction(index, playerX, playerY, isInit) [optional]
 --  moveFunction(dt, index, playerX, playerY)
 function EnemyManager.spawnEnemy(enemy, x, y)
-    if enemyCount >= maxEnemyCount then
+    if #activeIndexes >= maxEnemyCount then
         return
     end
 
@@ -195,6 +198,4 @@ function EnemyManager.spawnEnemy(enemy, x, y)
     enemyWidth[enemyIndex], enemyHeight[enemyIndex] = image:getSize()
 
     flashTimer[enemyIndex] = 0
-
-    enemyCount += 1
 end
