@@ -20,7 +20,7 @@ local moveSpeed <const> = 1 * refreshRate
 
 Slime = {
     health = 2,
-    imagetable = playdate.graphics.imagetable.new('assets/images/enemies/slimeOutlined'),
+    imagetable = playdate.graphics.imagetable.new('assets/images/enemies/slime'),
     frameTime = .15 -- 150ms
 }
 
