@@ -27,7 +27,7 @@ local frameTime
 local frameTimeCounter
 local idleFrameStart <const>, idleFrameEnd <const> = 1, 2
 local idleFrameTime <const> = .3 -- 300ms
-local runFrameStart <const>, runFrameEnd <const> = 3, 6
+local runFrameStart <const>, runFrameEnd <const> = 3, 7
 local runFrameTime <const> = .15 -- 150ms
 
 local animationStates <const> = {
