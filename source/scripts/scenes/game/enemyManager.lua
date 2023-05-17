@@ -29,6 +29,7 @@ local enemyFrameTime <const> = table.create(maxEnemyCount, 0)
 local enemyFrameTimeCounter <const> = table.create(maxEnemyCount, 0)
 local enemyWidth <const> = table.create(maxEnemyCount, 0)
 local enemyHeight <const> = table.create(maxEnemyCount, 0)
+local flashTimer <const> = table.create(maxEnemyCount, 0)
 
 enemyManager.enemyX = enemyX
 enemyManager.enemyY = enemyY
@@ -72,62 +73,63 @@ function EnemyManager.init(playerObject)
     activeIndexes = table.create(maxEnemyCount, 0)
 end
 
-function EnemyManager.update(dt, onlyDraw)
-    if onlyDraw then
-        for i=1, #activeIndexes do
-            local enemyIndex <const> = activeIndexes[i]
-            local x = enemyX[enemyIndex]
-            local y = enemyY[enemyIndex]
-            enemyImage[enemyIndex]:draw(x, y)
+function EnemyManager.update(dt)
+    local playerX, playerY = player.x, player.y
+    local playerTopLeftX = playerX - playerWidthOffset
+    local playerTopLeftY = playerY - playerHeightOffset
+    local playerBottomRightX = playerTopLeftX + playerWidth
+    local playerBottomRightY = playerTopLeftY + playerHeight
+    for i=1, #activeIndexes do
+        local enemyIndex <const> = activeIndexes[i]
+        local moveTime = enemyMoveTime[enemyIndex]
+        moveTime -= dt
+        if moveTime <= 0 then
+            enemyMovementFunction[enemyIndex](enemyIndex, playerX, playerY)
+        else
+            enemyMoveTime[enemyIndex] = moveTime
         end
-    else
-        local playerX, playerY = player.x, player.y
-        local playerTopLeftX = playerX - playerWidthOffset
-        local playerTopLeftY = playerY - playerHeightOffset
-        local playerBottomRightX = playerTopLeftX + playerWidth
-        local playerBottomRightY = playerTopLeftY + playerHeight
-        for i=1, #activeIndexes do
-            local enemyIndex <const> = activeIndexes[i]
-            local moveTime = enemyMoveTime[enemyIndex]
-            moveTime -= dt
-            if moveTime <= 0 then
-                enemyMovementFunction[enemyIndex](enemyIndex, playerX, playerY)
+
+        local attackFunction = enemyAttackFunction[enemyIndex]
+        if attackFunction then
+            local attackTime = enemyAttackTime[enemyIndex]
+            attackTime -= dt
+            if attackTime <= 0 then
+                attackFunction(enemyIndex, playerX, playerY)
             else
-                enemyMoveTime[enemyIndex] = moveTime
+                enemyAttackTime[enemyIndex] = attackTime
             end
+        end
 
-            local attackFunction = enemyAttackFunction[enemyIndex]
-            if attackFunction then
-                local attackTime = enemyAttackTime[enemyIndex]
-                attackTime -= dt
-                if attackTime <= 0 then
-                    attackFunction(enemyIndex, playerX, playerY)
-                else
-                    enemyAttackTime[enemyIndex] = attackTime
-                end
-            end
+        local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex] * dt
+        local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex] * dt
+        enemyX[enemyIndex] = x
+        enemyY[enemyIndex] = y
 
-            local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex] * dt
-            local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex] * dt
-            enemyX[enemyIndex] = x
-            enemyY[enemyIndex] = y
+        if overlapsPlayer(enemyIndex, playerTopLeftX, playerTopLeftY, playerBottomRightX, playerBottomRightY, x, y) then
+            player.damage(1)
+        end
 
-            if overlapsPlayer(enemyIndex, playerTopLeftX, playerTopLeftY, playerBottomRightX, playerBottomRightY, x, y) then
-                player.damage(1)
-            end
+        local frameTimeCounter = enemyFrameTimeCounter[enemyIndex]
+        frameTimeCounter -= dt
+        if frameTimeCounter <= 0 then
+            local imagetable = enemyImagetable[enemyIndex]
+            local drawIndex = enemyDrawIndex[enemyIndex]
+            drawIndex = ringInt(drawIndex + 1, 1, #imagetable)
+            enemyDrawIndex[enemyIndex] = drawIndex
+            enemyImage[enemyIndex] = imagetable[drawIndex]
+            enemyFrameTimeCounter[enemyIndex] = enemyFrameTime[enemyIndex]
+        else
+            enemyFrameTimeCounter[enemyIndex] = frameTimeCounter
+        end
 
-            local frameTimeCounter = enemyFrameTimeCounter[enemyIndex]
-            frameTimeCounter -= dt
-            if frameTimeCounter <= 0 then
-                local imagetable = enemyImagetable[enemyIndex]
-                local drawIndex = enemyDrawIndex[enemyIndex]
-                drawIndex = ringInt(drawIndex + 1, 1, #imagetable)
-                enemyDrawIndex[enemyIndex] = drawIndex
-                enemyImage[enemyIndex] = imagetable[drawIndex]
-                enemyFrameTimeCounter[enemyIndex] = enemyFrameTime[enemyIndex]
-            else
-                enemyFrameTimeCounter[enemyIndex] = frameTimeCounter
-            end
+        local flashTime = flashTimer[enemyIndex]
+        if flashTime > 0 then
+            flashTime -= dt
+            flashTimer[enemyIndex] = flashTime
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            enemyImage[enemyIndex]:draw(x, y)
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        else
             enemyImage[enemyIndex]:draw(x, y)
         end
     end
@@ -153,7 +155,7 @@ function EnemyManager.damageEnemy(enemyIndex, damage)
         enemyManager.removeEnemy(enemyIndex)
         return
     end
-    -- TODO: Add hit flash here
+    flashTimer[enemyIndex] = .15
     enemyHealth[enemyIndex] = health
 end
 
@@ -191,6 +193,8 @@ function EnemyManager.spawnEnemy(enemy, x, y)
     local image = imagetable[drawIndex]
     enemyImage[enemyIndex] = image
     enemyWidth[enemyIndex], enemyHeight[enemyIndex] = image:getSize()
+
+    flashTimer[enemyIndex] = 0
 
     enemyCount += 1
 end

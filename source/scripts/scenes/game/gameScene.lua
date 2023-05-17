@@ -82,7 +82,7 @@ function GameScene.init()
     enemyManager.init(player)
 
     -- Spawn all at once
-    for _=1, 100 do
+    for _=1, 30 do
         enemyManager.spawnEnemy(Slime, math.random(minSpawnX, maxSpawnX), math.random(minSpawnY, maxSpawnY))
     end
     -- Spawn Timer
