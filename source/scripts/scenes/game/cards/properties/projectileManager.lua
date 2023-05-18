@@ -99,15 +99,15 @@ function ProjectileManager.update(dt, onlyDraw)
                     table.remove(activeIndexes, i)
                     queue.push(availableIndexes, projectileIndex)
                 end
-                gfx.setColor(gfx.kColorBlack)
-                gfx.fillCircleInRect(x, y, diameter, diameter)
                 gfx.setColor(gfx.kColorWhite)
+                gfx.fillCircleInRect(x, y, diameter, diameter)
+                gfx.setColor(gfx.kColorBlack)
                 gfx.fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
             else
                 -- Handle collision with player
-                gfx.setColor(gfx.kColorWhite)
-                gfx.fillCircleInRect(x, y, diameter, diameter)
                 gfx.setColor(gfx.kColorBlack)
+                gfx.fillCircleInRect(x, y, diameter, diameter)
+                gfx.setColor(gfx.kColorWhite)
                 gfx.fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
             end
         end

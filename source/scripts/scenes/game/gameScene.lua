@@ -133,14 +133,14 @@ function GameScene.update()
         -- Update enemies
         enemyUpdate(deltaTime)
 
+        -- Update particles
+        particleUpdate(deltaTime)
+
         -- Update player
         playerUpdate(deltaTime)
 
         -- Update projectiles
         projectileUpdate(deltaTime)
-
-        -- Update particles
-        particleUpdate(deltaTime)
 
         if pd.buttonJustPressed(pd.kButtonA) then
             gameScene.revealHand()
@@ -152,14 +152,14 @@ function GameScene.update()
         -- Update enemies
         enemyUpdate(deltaTime)
 
+        -- Update particles
+        particleUpdate(deltaTime)
+
         -- Draw player
         playerUpdate(deltaTime, true)
 
         -- Update projectiles
         projectileUpdate(deltaTime)
-
-        -- Update particles
-        particleUpdate(deltaTime)
 
         local crankTicks = pd.getCrankTicks(8)
         if      pd.buttonJustPressed(pd.kButtonLeft) or crankTicks == -1 then hand:selectCardLeft()
@@ -179,14 +179,14 @@ function GameScene.update()
         -- Handle aiming
         aimManager:update()
 
+        -- Update particles
+        particleUpdate(deltaTime)
+
         -- Draw player
         playerUpdate(deltaTime, true)
 
         -- Update projectiles
         projectileUpdate(deltaTime)
-
-        -- Update particles
-        particleUpdate(deltaTime)
 
         if pd.buttonJustPressed(pd.kButtonA) then
             hand:playCard(aimManager:getAngle())

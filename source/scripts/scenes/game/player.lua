@@ -30,6 +30,12 @@ local idleFrameTime <const> = .3 -- 300ms
 local runFrameStart <const>, runFrameEnd <const> = 3, 7
 local runFrameTime <const> = .15 -- 150ms
 
+local particleManager <const> = ParticleManager
+local dashFadeImagetable = gfx.imagetable.new('assets/images/player/playerFade')
+local dashFadeImagetableFlipped = gfx.imagetable.new('assets/images/player/playerFadeFlipped')
+local dashFadeFrameTime = 0.05
+local dashFadeImageCount = 5
+
 local animationStates <const> = {
     idle = 1,
     run = 2,
@@ -103,6 +109,13 @@ function Player.update(dt, onlyDraw)
     if not onlyDraw then
         if dashTimer > 0 then
             dashTimer -= dt
+            if dashTimer > 0 then
+                if flip == flippedX then
+                    particleManager.addParticle(x, y, dashFadeImagetableFlipped, dashFadeFrameTime)
+                else
+                    particleManager.addParticle(x, y, dashFadeImagetable, dashFadeFrameTime)
+                end
+            end
             x += dashXVelocity * dt
             y += dashYVelocity * dt
 
