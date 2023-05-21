@@ -4,6 +4,10 @@ local gfx <const> = pd.graphics
 local refreshRate <const> = pd.display.getRefreshRate()
 local ringInt <const> = math.ringInt
 
+local drawModeCopy <const> = gfx.kDrawModeCopy
+local drawModeFillWhite <const> = gfx.kDrawModeFillWhite
+local setDrawMode <const> = gfx.setImageDrawMode
+
 -- Input Constants
 local buttonIsPressed <const> = pd.buttonIsPressed
 local buttonJustPressed <const> = pd.buttonJustPressed
@@ -34,7 +38,8 @@ local particleManager <const> = ParticleManager
 local dashFadeImagetable = gfx.imagetable.new('assets/images/player/playerFade')
 local dashFadeImagetableFlipped = gfx.imagetable.new('assets/images/player/playerFadeFlipped')
 local dashFadeFrameTime = 0.05
-local dashFadeImageCount = 5
+
+local uiManager <const> = UIManager
 
 local animationStates <const> = {
     idle = 1,
@@ -46,6 +51,9 @@ local flippedX <const> = gfx.kImageFlippedX
 local unflipped <const> = gfx.kImageUnflipped
 local flip = unflipped
 
+local maxFlashTime <const> = .15
+local flashTime = 0
+
 local dashCooldownTimer = 0
 local dashTimer = 0
 local dashTime <const> = .3
@@ -56,6 +64,9 @@ local dashXVelocity = 0
 local dashYVelocity = 0
 
 local health
+local maxHealth
+
+local gameScene
 
 player.width, player.height = 14, 24
 player.widthOffset, player.heightOffset = player.width/2, 4
@@ -87,15 +98,43 @@ local function switchToDash()
     playerImage = playerImagetable[frameIndex]
 end
 
-function Player.init()
+function Player.init(_health, _maxHealth)
     player.x, player.y = 200, 120
     player.type = TYPES.player
 
-    health = 10000
+    health = _health
+    maxHealth = _maxHealth
     switchToIdle()
 
     dashTimer = 0
     dashCooldownTimer = 0
+
+    flashTime = 0
+
+    gameScene = GameScene
+end
+
+function Player.getHealth()
+    return health
+end
+
+function Player.getMaxHealth()
+    return maxHealth
+end
+
+function Player.damage(amount)
+    health -= amount
+    if health <= 0 then
+        health = 0
+        player.die()
+    end
+    flashTime = maxFlashTime
+    gameScene.screenShake()
+    uiManager.updateHealth(health)
+end
+
+function Player.die()
+    -- Die
 end
 
 function Player.update(dt, onlyDraw)
@@ -105,6 +144,9 @@ function Player.update(dt, onlyDraw)
         frameIndex = ringInt(frameIndex + 1, frameStart, frameEnd)
         frameTimeCounter = frameTime
         playerImage = playerImagetable[frameIndex]
+    end
+    if flashTime > 0 then
+        flashTime -= dt
     end
     if not onlyDraw then
         if dashTimer > 0 then
@@ -185,9 +227,11 @@ function Player.update(dt, onlyDraw)
         gfx.setDrawOffset(-cameraXOffset,-cameraYOffset)
         player.x, player.y = x, y
     end
-    playerImage:drawAnchored(x, y, 0.5, 0.5, flip)
-end
-
-function player.damage(amount)
-    health -= amount
+    if flashTime > 0 then
+        setDrawMode(drawModeFillWhite)
+        playerImage:drawAnchored(x, y, 0.5, 0.5, flip)
+        setDrawMode(drawModeCopy)
+    else
+        playerImage:drawAnchored(x, y, 0.5, 0.5, flip)
+    end
 end

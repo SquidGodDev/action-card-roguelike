@@ -5,6 +5,7 @@ local enemySpeedY <const> = EnemyManager.enemySpeedY
 local enemyMoveTime <const> = EnemyManager.enemyMoveTime
 local enemyAttackTime <const> = EnemyManager.enemyAttackTime
 local enemyMoveState <const> = EnemyManager.enemyMoveState
+local enemyCollisionDamage <const> = EnemyManager.collisionDamage
 
 local sqrt = math.sqrt
 local random = math.random
@@ -21,7 +22,8 @@ local moveSpeed <const> = 1 * refreshRate
 Slime = {
     health = 4,
     imagetable = playdate.graphics.imagetable.new('assets/images/enemies/slime'),
-    frameTime = .15 -- 150ms
+    frameTime = .15, -- 150ms
+    collisionDamage = 1
 }
 
 function Slime.moveFunction(index, playerX, playerY)

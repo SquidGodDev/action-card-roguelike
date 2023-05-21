@@ -24,6 +24,7 @@ import 'scripts/constants'
 
 -- Cards
 import 'scripts/scenes/game/particleManager'
+import 'scripts/scenes/game/uiManager'
 import 'scripts/scenes/game/cards/properties/projectileManager'
 import 'scripts/scenes/game/cards/properties/projectileCard'
 import 'scripts/scenes/game/cards/aimManager'

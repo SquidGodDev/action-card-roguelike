@@ -10,6 +10,9 @@ local particleManager = ParticleManager
 local deathParticlesImageTable = gfx.imagetable.new('assets/images/particles/enemyDeathParticles')
 local deathParticlesFrameTime = .02
 
+local maxFlashTime <const> = .15
+local maxCollisionTime <const> = 1
+
 -- Enemy List
 local maxEnemyCount <const> = 150
 local queue <const> = Queue
@@ -32,6 +35,8 @@ local enemyFrameTime <const> = table.create(maxEnemyCount, 0)
 local enemyFrameTimeCounter <const> = table.create(maxEnemyCount, 0)
 local enemyWidth <const> = table.create(maxEnemyCount, 0)
 local enemyHeight <const> = table.create(maxEnemyCount, 0)
+local enemyCollisionDamage <const> = table.create(maxEnemyCount, 0)
+local enemyCollisionTimer <const> = table.create(maxEnemyCount, 0)
 local flashTimer <const> = table.create(maxEnemyCount, 0)
 
 enemyManager.enemyX = enemyX
@@ -43,6 +48,7 @@ enemyManager.enemyAttackTime = enemyAttackTime
 enemyManager.enemyMoveState = enemyMoveState
 enemyManager.enemyWidth = enemyWidth
 enemyManager.enemyHeight = enemyHeight
+enemyManager.collisionDamage = enemyCollisionDamage
 
 local player
 local playerWidthOffset, playerHeightOffset
@@ -63,8 +69,8 @@ local function overlapsPlayer(index, pTLX, pTLY, pBRX, pBRY, topLeftX, topLeftY)
     end
 end
 
-function EnemyManager.init(playerObject)
-    player = playerObject
+function EnemyManager.init(_player)
+    player = _player
     playerWidthOffset, playerHeightOffset = player.widthOffset, player.heightOffset
     playerWidth, playerHeight = player.width, player.height
 
@@ -107,8 +113,15 @@ function EnemyManager.update(dt)
         enemyX[enemyIndex] = x
         enemyY[enemyIndex] = y
 
-        if overlapsPlayer(enemyIndex, playerTopLeftX, playerTopLeftY, playerBottomRightX, playerBottomRightY, x, y) then
-            player.damage(1)
+        local collisionTime = enemyCollisionTimer[enemyIndex]
+        if collisionTime > 0 then
+            collisionTime -= dt
+            enemyCollisionTimer[enemyIndex] = collisionTime
+        else
+            if overlapsPlayer(enemyIndex, playerTopLeftX, playerTopLeftY, playerBottomRightX, playerBottomRightY, x, y) then
+                player.damage(enemyCollisionDamage[enemyIndex])
+                enemyCollisionTimer[enemyIndex] = maxCollisionTime
+            end
         end
 
         local frameTimeCounter = enemyFrameTimeCounter[enemyIndex]
@@ -158,7 +171,7 @@ function EnemyManager.damageEnemy(enemyIndex, damage)
         particleManager.addParticle(x, y, deathParticlesImageTable, deathParticlesFrameTime)
         return
     end
-    flashTimer[enemyIndex] = .15
+    flashTimer[enemyIndex] = maxFlashTime
     enemyHealth[enemyIndex] = health
 end
 
@@ -196,6 +209,9 @@ function EnemyManager.spawnEnemy(enemy, x, y)
     local image = imagetable[drawIndex]
     enemyImage[enemyIndex] = image
     enemyWidth[enemyIndex], enemyHeight[enemyIndex] = image:getSize()
+
+    enemyCollisionDamage[enemyIndex] = enemy.collisionDamage
+    enemyCollisionTimer[enemyIndex] = maxCollisionTime
 
     flashTimer[enemyIndex] = 0
 end

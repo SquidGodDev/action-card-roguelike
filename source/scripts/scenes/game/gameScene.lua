@@ -4,6 +4,11 @@ local gfx <const> = pd.graphics
 local getCurTimeMil = pd.getCurrentTimeMilliseconds
 local previous_time = nil
 
+local floor = math.floor
+local random = math.random
+local cos = math.cos
+local sin = math.sin
+
 local lerp <const> = function(a, b, t)
     if a == b then
         return a
@@ -23,6 +28,8 @@ local projectileUpdate = projectileManager.update
 local aimManager
 local particleManager = ParticleManager
 local particleUpdate = particleManager.update
+local uiManager = UIManager
+local uiUpdate = uiManager.update
 
 local hand
 local STATES <const> = {
@@ -58,22 +65,47 @@ local walls = {
     bottomWallSprite
 }
 
+local background = gfx.image.new(400, 240, gfx.kColorBlack)
+
+local setDisplayOffset = pd.display.setOffset
+local shakeTimer
+
 GameScene = {}
 local gameScene = GameScene
 
 function GameScene.init()
     -- Environment
     gfx.sprite.setBackgroundDrawingCallback(function()
-        gfx.setColor(gfx.kColorBlack)
-        gfx.fillRect(0, 0, 400, 240)
+        background:draw(0, 0)
     end)
+
+    gfx.setBackgroundColor(gfx.kColorBlack)
 
     for _, wall in ipairs(walls) do
         wall:add()
     end
 
+    -- Screen Shake
+    shakeTimer =  pd.timer.new(500, 5, 0)
+    shakeTimer:pause()
+    shakeTimer.timerEndedCallback = function(timer)
+        setDisplayOffset(0, 0)
+        timer:reset()
+        timer:pause()
+    end
+    shakeTimer.updateCallback = function(timer)
+        local shakeAmount = timer.value
+        local shakeAngle = random()*3.14*2;
+        shakeX = floor(cos(shakeAngle)*shakeAmount);
+        shakeY = floor(sin(shakeAngle)*shakeAmount);
+        setDisplayOffset(shakeX, shakeY)
+    end
+    shakeTimer.discardOnCompletion = false
+
     -- Game state
-    player.init()
+    local maxHealth = 9
+    local health = maxHealth
+    player.init(health, maxHealth)
     state = STATES.moving
     projectileManager.init()
     aimManager = AimManager(player)
@@ -113,8 +145,14 @@ function GameScene.init()
     end
     -- =======================
     local deck = Deck(deckData)
-    hand = Hand(deck, gameScene, player)
+    local maxMana = 5
+    hand = Hand(deck, gameScene, player, maxMana)
     hand:drawStartingHand()
+
+    -- UI
+    local drawTime = 3
+    local manaTime = 1
+    uiManager.init(player, hand, drawTime, manaTime)
 end
 
 function GameScene.update()
@@ -142,6 +180,9 @@ function GameScene.update()
         -- Update projectiles
         projectileUpdate(deltaTime)
 
+        -- Update UI
+        uiUpdate(deltaTime, true)
+
         if pd.buttonJustPressed(pd.kButtonA) then
             gameScene.revealHand()
         end
@@ -160,6 +201,9 @@ function GameScene.update()
 
         -- Update projectiles
         projectileUpdate(deltaTime)
+
+        -- Update UI
+        uiUpdate(deltaTime, false)
 
         local crankTicks = pd.getCrankTicks(8)
         if      pd.buttonJustPressed(pd.kButtonLeft) or crankTicks == -1 then hand:selectCardLeft()
@@ -209,6 +253,11 @@ end
 function GameScene.revealHand()
     state = STATES.selecting
     hand:activateHand()
+end
+
+function GameScene.screenShake()
+    shakeTimer:reset()
+    shakeTimer:start()
 end
 
 function pd.debugDraw()
