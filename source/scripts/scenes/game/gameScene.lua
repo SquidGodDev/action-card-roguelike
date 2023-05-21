@@ -150,8 +150,8 @@ function GameScene.init()
     hand:drawStartingHand()
 
     -- UI
-    local drawTime = 3
-    local manaTime = 1
+    local drawTime = 6
+    local manaTime = 3
     uiManager.init(player, hand, drawTime, manaTime)
 end
 
@@ -183,7 +183,7 @@ function GameScene.update()
         -- Update UI
         uiUpdate(deltaTime, true)
 
-        if pd.buttonJustPressed(pd.kButtonA) then
+        if pd.buttonJustPressed(pd.kButtonA) and not hand:isEmpty() then
             gameScene.revealHand()
         end
     elseif state == STATES.selecting then

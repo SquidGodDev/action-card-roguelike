@@ -9,6 +9,7 @@ function Card:init(x, y, data)
     -- Data
     self.aimable = data.stats.aimable
     self.castFunction = data.cast
+    self.cost = data.stats.cost
     self.data = data
 
     -- Drawing
@@ -29,6 +30,10 @@ function Card:update()
         self.index = math.ringInt(self.index + 1, 1, #self.imagetable)
     end
     self.imagetable[self.index]:drawIgnoringOffset(self.x, self.y)
+end
+
+function Card:getCost()
+    return self.cost
 end
 
 function Card:cast(x, y, angle)

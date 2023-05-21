@@ -3,7 +3,7 @@ local gfx <const> = pd.graphics
 
 class('Hand').extends()
 
-local MAX_HAND_SIZE <const> = 10
+local MAX_HAND_SIZE <const> = 6
 
 local lerp <const> = function(a, b, t)
     return a * (1-t) + b * t
@@ -38,7 +38,7 @@ function Hand:init(deck, game, player, mana)
     self.player = player
 
     self.active = false
-    self.startingDrawCount = 5
+    self.startingDrawCount = 3
 
     self.cards = {}
     self.cardBaseY = 190
@@ -49,15 +49,14 @@ function Hand:init(deck, game, player, mana)
     self.animateTimer = nil
     self.cardAnimationLerpSpeed = 0.2
 
-    self.handSize = 1
     self.cardSelectIndex = 1
 
     self.maxMana = mana
-    self.mana = mana
+    self.mana = 0
 end
 
 function Hand:isFull()
-    return self.handSize >= MAX_HAND_SIZE
+    return #self.cards >= MAX_HAND_SIZE
 end
 
 function Hand:update()
@@ -79,6 +78,10 @@ end
 
 function Hand:getMana()
     return self.mana
+end
+
+function Hand:getMaxMana()
+    return self.maxMana
 end
 
 function Hand:addMana(mana)
@@ -108,6 +111,10 @@ function Hand:selectCard()
         return
     end
     local playedCard = self.cards[self.cardSelectIndex]
+    local enoughMana = playedCard:getCost() <= self.mana
+    if not enoughMana then
+        return
+    end
     if playedCard:isAimable() then
         self:deactivateHand()
         self.game.switchToAiming()
@@ -121,8 +128,13 @@ function Hand:playCard(angle)
     if #self.cards <= 0 then
         return
     end
-
     local playedCard = self.cards[self.cardSelectIndex]
+    local cardCost = playedCard:getCost()
+    if self.mana < cardCost then
+        return
+    end
+
+    self.mana -= cardCost
     table.remove(self.cards, self.cardSelectIndex)
     if self.cardSelectIndex > #self.cards then
         self.cardSelectIndex = #self.cards
@@ -134,7 +146,18 @@ function Hand:playCard(angle)
         playedCard:moveTo(playedCard.x, timer.value)
         playedCard:update()
     end
-    self:drawCard()
+end
+
+function Hand:getHandSize()
+    return #self.cards
+end
+
+function Hand:getMaxHandSize()
+    return MAX_HAND_SIZE
+end
+
+function Hand:isEmpty()
+    return #self.cards <= 0
 end
 
 function Hand:drawStartingHand()
@@ -157,6 +180,9 @@ function Hand:addCard(card)
     end
     card:moveTo(-50, self.cardY)
     table.insert(self.cards, 1, card)
+    if #self.cards == 1 then
+        self.cardSelectIndex = 1
+    end
 end
 
 function Hand:activateHand()

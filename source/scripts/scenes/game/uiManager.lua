@@ -1,6 +1,10 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+local newImage <const> = gfx.image.new
+
+local outlinedFont <const> = gfx.font.new('assets/fonts/WhackyJoeMonospaced-12-Outlined')
+
 UIManager = {}
 local uiManager = UIManager
 
@@ -13,13 +17,27 @@ local drawTimeCounter
 local manaTime
 local manaTimeCounter
 
-local heartLeftHalf = gfx.image.new('assets/images/ui/leftHalfHeart')
-local heartLeftHalfTransparent = gfx.image.new('assets/images/ui/leftHalfHeartTransparent')
-local heartRightHalf = gfx.image.new('assets/images/ui/rightHalfHeart')
-local heartRightHalfTransparent = gfx.image.new('assets/images/ui/rightHalfHeartTransparent')
-local heartBaseX, heartBaseY = 2, 2
-local halfHeartGap = heartLeftHalf:getSize()
-local heartGap = halfHeartGap + 2
+local heartLeftHalf = newImage('assets/images/ui/leftHalfHeart')
+local heartLeftHalfTransparent = newImage('assets/images/ui/leftHalfHeartTransparent')
+local heartRightHalf = newImage('assets/images/ui/rightHalfHeart')
+local heartRightHalfTransparent = newImage('assets/images/ui/rightHalfHeartTransparent')
+local heartBaseX <const>, heartBaseY <const> = 2, 2
+local halfHeartGap <const> = heartLeftHalf:getSize()
+local heartGap <const> = halfHeartGap + 2
+
+local manaIcon = newImage('assets/images/ui/manaIcon')
+local manaIconTransparent = newImage('assets/images/ui/manaIconTransparent')
+local manaIconMask = newImage('assets/images/ui/manaIconMask')
+local manaX <const>, manaY <const> = 12, 64
+local manaWidth <const>, manaHeight <const> = manaIcon:getSize()
+local manaTextX <const>, manaTextY <const> = 44, 61
+
+local cardsIcon = newImage('assets/images/ui/cardsIcon')
+local cardsIconTransparent = newImage('assets/images/ui/cardsIconTransparent')
+local cardsIconMask = newImage('assets/images/ui/cardsIconMask')
+local cardsX <const>, cardsY <const> = 3, 35
+local cardsWidth <const>, cardsHeight <const> = cardsIcon:getSize()
+local cardsTextX <const>, cardsTextY <const> = 44, 35
 
 function UIManager.init(_player, _hand, _drawTime, _manaTime)
     health = _player.getHealth()
@@ -45,6 +63,8 @@ function UIManager.update(dt, update)
                 hand:drawCard()
                 drawTimeCounter = drawTime
             end
+        else
+            drawTimeCounter = drawTime
         end
         if not manaIsFull then
             manaTimeCounter -= dt
@@ -52,6 +72,8 @@ function UIManager.update(dt, update)
                 hand:addMana(1)
                 manaTimeCounter = manaTime
             end
+        else
+            manaTimeCounter = manaTime
         end
     end
 
@@ -65,4 +87,37 @@ function UIManager.update(dt, update)
         drawHeart:drawIgnoringOffset(heartX, heartBaseY)
         heartX += isLeft and halfHeartGap or heartGap
     end
+
+    manaIconTransparent:drawIgnoringOffset(manaX, manaY)
+    local manaMask = manaIconMask:copy()
+    gfx.setColor(gfx.kColorBlack)
+    if manaTimeCounter ~= manaTime then
+        gfx.pushContext(manaMask)
+            gfx.fillRect(0, 0, manaWidth, (manaTimeCounter / manaTime) * manaHeight)
+        gfx.popContext()
+    end
+    manaIcon:setMaskImage(manaMask)
+    manaIcon:drawIgnoringOffset(manaX, manaY)
+
+    cardsIconTransparent:drawIgnoringOffset(cardsX, cardsY)
+    local cardsMask = cardsIconMask:copy()
+    if drawTimeCounter ~= drawTime then
+        gfx.pushContext(cardsMask)
+            gfx.fillRect(0, 0, cardsWidth, (drawTimeCounter / drawTime) * cardsHeight)
+        gfx.popContext()
+    end
+    cardsIcon:setMaskImage(cardsMask)
+    cardsIcon:drawIgnoringOffset(cardsX, cardsY)
+
+    gfx.unlockFocus()
+    gfx.setColor(gfx.kColorWhite)
+
+    local drawOffsetX, drawOffsetY = gfx.getDrawOffset()
+    local mana = hand:getMana()
+    local maxMana = hand:getMaxMana()
+    outlinedFont:drawText(mana .. '/' .. maxMana, manaTextX - drawOffsetX, manaTextY - drawOffsetY)
+
+    local handSize = hand:getHandSize()
+    local maxHandSize = hand:getMaxHandSize()
+    outlinedFont:drawText(handSize .. '/' .. maxHandSize, cardsTextX - drawOffsetX, cardsTextY - drawOffsetY)
 end

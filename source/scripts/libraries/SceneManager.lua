@@ -55,7 +55,7 @@ function setSceneUpdate(scene)
         end
         timerUpdate()
         if drawFps then
-            pd.drawFPS(0, 0)
+            pd.drawFPS(0, 228)
         end
     end
 end
