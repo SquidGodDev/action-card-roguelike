@@ -123,6 +123,10 @@ function Player.getMaxHealth()
 end
 
 function Player.damage(amount)
+    if dashTimer > 0 then
+        return false
+    end
+
     health -= amount
     if health <= 0 then
         health = 0
@@ -131,6 +135,7 @@ function Player.damage(amount)
     flashTime = maxFlashTime
     gameScene.screenShake()
     uiManager.updateHealth(health)
+    return true
 end
 
 function Player.die()

@@ -119,8 +119,10 @@ function EnemyManager.update(dt)
             enemyCollisionTimer[enemyIndex] = collisionTime
         else
             if overlapsPlayer(enemyIndex, playerTopLeftX, playerTopLeftY, playerBottomRightX, playerBottomRightY, x, y) then
-                player.damage(enemyCollisionDamage[enemyIndex])
-                enemyCollisionTimer[enemyIndex] = maxCollisionTime
+                local playerDamaged = player.damage(enemyCollisionDamage[enemyIndex])
+                if playerDamaged then
+                    enemyCollisionTimer[enemyIndex] = maxCollisionTime
+                end
             end
         end
 
