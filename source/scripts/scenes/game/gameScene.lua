@@ -72,33 +72,6 @@ local background = gfx.image.new(400, 240, gfx.kColorBlack)
 local setDisplayOffset = pd.display.setOffset
 local shakeTimer
 
-local function getDirection()
-    local x, y = 0, 0
-    if pd.buttonIsPressed(pd.kButtonLeft)  then x -= 1 end
-    if pd.buttonIsPressed(pd.kButtonRight) then x += 1 end
-    if pd.buttonIsPressed(pd.kButtonUp)    then y -= 1 end
-    if pd.buttonIsPressed(pd.kButtonDown)  then y += 1 end
-    -- Check for zero input
-    if x == 0 and y == 0 then
-        return 0
-    end
-
-    -- Calculate the angle in radians
-    local angle = math.atan(y / x)
-
-    -- Adjust the angle based on the quadrant
-    if x < 0 then
-        angle = angle + math.pi
-    elseif y < 0 then
-        angle = angle + 2 * math.pi
-    end
-
-    -- Convert the angle from radians to degrees
-    angle = math.deg(angle)
-
-    return angle
-end
-
 GameScene = {}
 local gameScene = GameScene
 
@@ -219,10 +192,6 @@ function GameScene.update()
         if pd.buttonJustPressed(pd.kButtonA) and not hand:isEmpty() then
             gameScene.revealHand()
         end
-        -- if pd.buttonJustPressed(pd.kButtonA) then
-        --     local angle = getDirection()
-        --     hand:playCard(angle)
-        -- end
     elseif state == STATES.selecting then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
         local deltaTime <const> = dt * deltaTimeMultiplier
