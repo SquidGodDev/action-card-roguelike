@@ -177,6 +177,49 @@ function EnemyManager.damageEnemy(enemyIndex, damage)
     enemyHealth[enemyIndex] = health
 end
 
+local function ccw(x1, y1, x2, y2, x3, y3)
+    return (y3 - y1) * (x2 - x1) > (y2 - y1) * (x3 - x1)
+end
+
+local function intersect(x1, y1, x2, y2, x3, y3, x4, y4)
+    return ccw(x1, y1, x3, y3, x4, y4) ~= ccw(x2, y2, x3, y3, x4, y4) and ccw(x1, y1, x2, y2, x3, y3) ~= ccw(x1, y1, x2, y2, x4, y4)
+end
+
+local function lineIntersectsEnemy(enemyIndex, segmentStartX, segmentStartY, segmentEndX, segmentEndY)
+    local rectX, rectY = enemyX[enemyIndex], enemyY[enemyIndex]
+    local rectRight = rectX + enemyWidth[enemyIndex]
+    local rectBottom = rectY + enemyHeight[enemyIndex]
+
+    -- Check if segment is completely outside the rectangle's bounds
+    if (segmentEndX < rectX and segmentStartX < rectX) or
+       (segmentEndX > rectRight and segmentStartX > rectRight) or
+       (segmentEndY < rectY and segmentStartY < rectY) or
+       (segmentEndY > rectBottom and segmentStartY > rectBottom) then
+        return false
+    end
+
+    -- Check if segment intersects any of the rectangle's edges
+    if intersect(segmentStartX, segmentStartY, segmentEndX, segmentEndY, rectX, rectY, rectX, rectBottom) or
+        intersect(segmentStartX, segmentStartY, segmentEndX, segmentEndY, rectX, rectBottom, rectRight, rectBottom) or
+        intersect(segmentStartX, segmentStartY, segmentEndX, segmentEndY, rectRight, rectBottom, rectRight, rectY) or
+        intersect(segmentStartX, segmentStartY, segmentEndX, segmentEndY, rectRight, rectY, rectX, rectY) then
+        return true
+    end
+
+    return false
+end
+
+local damageEnemy = enemyManager.damageEnemy
+
+function EnemyManager.damageEnemyAlongLine(damage, segStartX, segStartY, segEndX, segEndY)
+    for i=#activeIndexes, 1, -1 do
+        local enemyIndex <const> = activeIndexes[i]
+        if lineIntersectsEnemy(enemyIndex, segStartX, segStartY, segEndX, segEndY) then
+            damageEnemy(enemyIndex, damage)
+        end
+    end
+end
+
 -- Enemy Object:
 --  health
 --  image

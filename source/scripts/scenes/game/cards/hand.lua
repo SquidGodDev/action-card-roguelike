@@ -52,7 +52,7 @@ function Hand:init(deck, game, player, mana)
     self.cardSelectIndex = 1
 
     self.maxMana = mana
-    self.mana = 0
+    self.mana = mana
 end
 
 function Hand:isFull()
@@ -146,6 +146,8 @@ function Hand:playCard(angle)
         playedCard:moveTo(playedCard.x, timer.value)
         playedCard:update()
     end
+
+    self:drawCard()
 end
 
 function Hand:getHandSize()

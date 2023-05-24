@@ -23,10 +23,12 @@ import 'scripts/libraries/Utilities'
 import 'scripts/constants'
 
 -- Cards
+import 'scripts/scenes/game/drawManager'
 import 'scripts/scenes/game/particleManager'
 import 'scripts/scenes/game/uiManager'
 import 'scripts/scenes/game/cards/properties/projectileManager'
 import 'scripts/scenes/game/cards/properties/projectileCard'
+import 'scripts/scenes/game/cards/properties/beamCard'
 import 'scripts/scenes/game/cards/aimManager'
 
 import 'scripts/data/cards'

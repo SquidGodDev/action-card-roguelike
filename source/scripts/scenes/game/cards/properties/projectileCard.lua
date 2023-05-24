@@ -14,7 +14,7 @@ function ProjectileCard.cast(x, y, angle, data)
     local diameter = stats.diameter
     local damage = stats.damage
     local isPlayer = true
-    local angleInRad = rad(angle - 90)
+    local angleInRad = rad(angle)
     local xSpeed = cos(angleInRad) * speed
     local ySpeed = sin(angleInRad) * speed
     createProjectile(x, y, xSpeed, ySpeed, diameter, damage, isPlayer)

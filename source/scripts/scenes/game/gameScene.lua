@@ -30,6 +30,8 @@ local particleManager = ParticleManager
 local particleUpdate = particleManager.update
 local uiManager = UIManager
 local uiUpdate = uiManager.update
+local drawManager = DrawManager
+local drawUpdate = drawManager.update
 
 local hand
 local STATES <const> = {
@@ -69,6 +71,33 @@ local background = gfx.image.new(400, 240, gfx.kColorBlack)
 
 local setDisplayOffset = pd.display.setOffset
 local shakeTimer
+
+local function getDirection()
+    local x, y = 0, 0
+    if pd.buttonIsPressed(pd.kButtonLeft)  then x -= 1 end
+    if pd.buttonIsPressed(pd.kButtonRight) then x += 1 end
+    if pd.buttonIsPressed(pd.kButtonUp)    then y -= 1 end
+    if pd.buttonIsPressed(pd.kButtonDown)  then y += 1 end
+    -- Check for zero input
+    if x == 0 and y == 0 then
+        return 0
+    end
+
+    -- Calculate the angle in radians
+    local angle = math.atan(y / x)
+
+    -- Adjust the angle based on the quadrant
+    if x < 0 then
+        angle = angle + math.pi
+    elseif y < 0 then
+        angle = angle + 2 * math.pi
+    end
+
+    -- Convert the angle from radians to degrees
+    angle = math.deg(angle)
+
+    return angle
+end
 
 GameScene = {}
 local gameScene = GameScene
@@ -110,6 +139,7 @@ function GameScene.init()
     projectileManager.init()
     aimManager = AimManager(player)
     particleManager.init()
+    drawManager.init()
 
     -- Enemies
     local minSpawnX, maxSpawnX = -300, 600
@@ -134,7 +164,7 @@ function GameScene.init()
     -- Deck
     -- ===== Temp values =====
     local cardList = {}
-    cardList[1] = CARDS.fireball
+    cardList[1] = CARDS.zap
     -- for _, card in pairs(CARDS) do
     --     table.insert(cardList, card)
     -- end
@@ -151,7 +181,7 @@ function GameScene.init()
 
     -- UI
     local drawTime = 6
-    local manaTime = 3
+    local manaTime = 1
     uiManager.init(player, hand, drawTime, manaTime)
 end
 
@@ -166,10 +196,13 @@ function GameScene.update()
 
     if state == STATES.moving then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, 1, timeLerpRate)
-        local deltaTime = dt * deltaTimeMultiplier
+        local deltaTime <const> = dt * deltaTimeMultiplier
 
         -- Update enemies
         enemyUpdate(deltaTime)
+
+        -- Update draw
+        drawUpdate(deltaTime)
 
         -- Update particles
         particleUpdate(deltaTime)
@@ -186,15 +219,22 @@ function GameScene.update()
         if pd.buttonJustPressed(pd.kButtonA) and not hand:isEmpty() then
             gameScene.revealHand()
         end
+        -- if pd.buttonJustPressed(pd.kButtonA) then
+        --     local angle = getDirection()
+        --     hand:playCard(angle)
+        -- end
     elseif state == STATES.selecting then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
-        local deltaTime = dt * deltaTimeMultiplier
+        local deltaTime <const> = dt * deltaTimeMultiplier
 
         -- Update enemies
         enemyUpdate(deltaTime)
 
         -- Update particles
         particleUpdate(deltaTime)
+
+        -- Update draw
+        drawUpdate(deltaTime)
 
         -- Draw player
         playerUpdate(deltaTime, true)
@@ -215,13 +255,16 @@ function GameScene.update()
         hand:update()
     elseif state == STATES.aiming then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
-        local deltaTime = dt * deltaTimeMultiplier
+        local deltaTime <const> = dt * deltaTimeMultiplier
 
         -- Update enemies
         enemyUpdate(deltaTime)
 
         -- Handle aiming
         aimManager:update()
+
+        -- Update draw
+        drawUpdate(deltaTime)
 
         -- Update particles
         particleUpdate(deltaTime)

@@ -37,10 +37,8 @@ function AimManager:update()
         end
     end
 
-    self.drawAngle = self.angle
-
-    local angleInRad = math.rad(self.drawAngle - 90)
-    local lineLength = 100
+    local angleInRad = math.rad(self.angle - 90)
+    local lineLength = 240
     local x1, y1 = self.player.x, self.player.y
     local x2 = x1 + math.cos(angleInRad) * lineLength
     local y2 = y1 + math.sin(angleInRad) * lineLength
@@ -64,5 +62,5 @@ function AimManager:moveAngleRight()
 end
 
 function AimManager:getAngle()
-    return self.angle
+    return self.angle - 90
 end

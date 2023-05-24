@@ -16,6 +16,30 @@ CARDS = {
             damage = 2
         }
     },
+    medFireball = {
+        imagePath = 'assets/images/cards/fireball',
+        sfx = '',
+        cast = ProjectileCard.cast,
+        stats = {
+            aimable = true,
+            cost = 2,
+            speed = 4 * refreshRate,
+            diameter = 16,
+            damage = 4
+        }
+    },
+    largeFireball = {
+        imagePath = 'assets/images/cards/fireball',
+        sfx = '',
+        cast = ProjectileCard.cast,
+        stats = {
+            aimable = true,
+            cost = 3,
+            speed = 3 * refreshRate,
+            diameter = 24,
+            damage = 4
+        }
+    },
     stoneWall = {
         imagePath = 'assets/images/cards/stoneWall',
         sfx = '',
@@ -28,10 +52,12 @@ CARDS = {
     zap = {
         imagePath = 'assets/images/cards/zap',
         sfx = '',
+        cast = BeamCard.cast,
         stats = {
             aimable = true,
-            cost = 0,
-            damage = 1
+            cost = 1,
+            damage = 4,
+            length = 235
         }
     },
     lightningStrike = {

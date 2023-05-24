@@ -28,16 +28,16 @@ local heartGap <const> = halfHeartGap + 2
 local manaIcon = newImage('assets/images/ui/manaIcon')
 local manaIconTransparent = newImage('assets/images/ui/manaIconTransparent')
 local manaIconMask = newImage('assets/images/ui/manaIconMask')
-local manaX <const>, manaY <const> = 12, 64
+local manaX <const>, manaY <const> = 12, 35
 local manaWidth <const>, manaHeight <const> = manaIcon:getSize()
-local manaTextX <const>, manaTextY <const> = 44, 61
+local manaTextX <const>, manaTextY <const> = 44, 32
 
 local cardsIcon = newImage('assets/images/ui/cardsIcon')
 local cardsIconTransparent = newImage('assets/images/ui/cardsIconTransparent')
 local cardsIconMask = newImage('assets/images/ui/cardsIconMask')
-local cardsX <const>, cardsY <const> = 3, 35
+local cardsX <const>, cardsY <const> = 3, 64
 local cardsWidth <const>, cardsHeight <const> = cardsIcon:getSize()
-local cardsTextX <const>, cardsTextY <const> = 44, 35
+local cardsTextX <const>, cardsTextY <const> = 44, 61
 
 function UIManager.init(_player, _hand, _drawTime, _manaTime)
     health = _player.getHealth()
@@ -58,11 +58,11 @@ function UIManager.update(dt, update)
     local manaIsFull = hand:manaIsFull()
     if update then
         if not handIsFull then
-            drawTimeCounter -= dt
-            if drawTimeCounter <= 0 then
-                hand:drawCard()
-                drawTimeCounter = drawTime
-            end
+            -- drawTimeCounter -= dt
+            -- if drawTimeCounter <= 0 then
+            --     hand:drawCard()
+            --     drawTimeCounter = drawTime
+            -- end
         else
             drawTimeCounter = drawTime
         end
@@ -99,15 +99,15 @@ function UIManager.update(dt, update)
     manaIcon:setMaskImage(manaMask)
     manaIcon:drawIgnoringOffset(manaX, manaY)
 
-    cardsIconTransparent:drawIgnoringOffset(cardsX, cardsY)
-    local cardsMask = cardsIconMask:copy()
-    if drawTimeCounter ~= drawTime then
-        gfx.pushContext(cardsMask)
-            gfx.fillRect(0, 0, cardsWidth, (drawTimeCounter / drawTime) * cardsHeight)
-        gfx.popContext()
-    end
-    cardsIcon:setMaskImage(cardsMask)
-    cardsIcon:drawIgnoringOffset(cardsX, cardsY)
+    -- cardsIconTransparent:drawIgnoringOffset(cardsX, cardsY)
+    -- local cardsMask = cardsIconMask:copy()
+    -- if drawTimeCounter ~= drawTime then
+    --     gfx.pushContext(cardsMask)
+    --         gfx.fillRect(0, 0, cardsWidth, (drawTimeCounter / drawTime) * cardsHeight)
+    --     gfx.popContext()
+    -- end
+    -- cardsIcon:setMaskImage(cardsMask)
+    -- cardsIcon:drawIgnoringOffset(cardsX, cardsY)
 
     gfx.unlockFocus()
     gfx.setColor(gfx.kColorWhite)
@@ -117,7 +117,7 @@ function UIManager.update(dt, update)
     local maxMana = hand:getMaxMana()
     outlinedFont:drawText(mana .. '/' .. maxMana, manaTextX - drawOffsetX, manaTextY - drawOffsetY)
 
-    local handSize = hand:getHandSize()
-    local maxHandSize = hand:getMaxHandSize()
-    outlinedFont:drawText(handSize .. '/' .. maxHandSize, cardsTextX - drawOffsetX, cardsTextY - drawOffsetY)
+    -- local handSize = hand:getHandSize()
+    -- local maxHandSize = hand:getMaxHandSize()
+    -- outlinedFont:drawText(handSize .. '/' .. maxHandSize, cardsTextX - drawOffsetX, cardsTextY - drawOffsetY)
 end
