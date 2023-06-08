@@ -40,6 +40,21 @@ CARDS = {
             damage = 4
         }
     },
+    flamethrower = {
+        imagePath = 'assets/images/cards/fireball',
+        sfx = '',
+        cast = RepeatedProjectileCard.cast,
+        stats = {
+            aimable = true,
+            cost = 1,
+            speed = 5 * refreshRate,
+            diameter = 12,
+            damage = 2,
+            count = 7,
+            interval = 0.05,
+            spread = 30
+        }
+    },
     stoneWall = {
         imagePath = 'assets/images/cards/stoneWall',
         sfx = '',
@@ -63,10 +78,12 @@ CARDS = {
     lightningStrike = {
         imagePath = 'assets/images/cards/lightningStrike',
         sfx = '',
+        cast = AOECard.cast,
         stats = {
-            aimable = true,
+            aimable = false,
             cost = 2,
-            damage = 2
+            damage = 4,
+            radius = 60
         }
     },
     investigate = {

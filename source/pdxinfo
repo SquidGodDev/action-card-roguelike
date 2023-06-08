@@ -1,0 +1,6 @@
+name=ActionCardRoguelike
+author=SquidGod
+description=A deckbuilder + action roguelike
+bundleID=com.squidgod.actioncardroguelike
+version=0.1
+buildNumber=1

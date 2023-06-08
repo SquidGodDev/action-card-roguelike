@@ -32,6 +32,8 @@ local uiManager = UIManager
 local uiUpdate = uiManager.update
 local drawManager = DrawManager
 local drawUpdate = drawManager.update
+local gameTimer = GameTimer
+local gameTimerUpdate = gameTimer.update
 
 local hand
 local STATES <const> = {
@@ -88,7 +90,7 @@ function GameScene.init()
     end
 
     -- Screen Shake
-    shakeTimer =  pd.timer.new(500, 5, 0)
+    shakeTimer = pd.timer.new(500, 5, 0)
     shakeTimer:pause()
     shakeTimer.timerEndedCallback = function(timer)
         setDisplayOffset(0, 0)
@@ -113,6 +115,7 @@ function GameScene.init()
     aimManager = AimManager(player)
     particleManager.init()
     drawManager.init()
+    gameTimer.init()
 
     -- Enemies
     local minSpawnX, maxSpawnX = -300, 600
@@ -120,7 +123,7 @@ function GameScene.init()
     enemyManager.init(player)
 
     -- Spawn all at once
-    for _=1, 30 do
+    for _=1, 50 do
         enemyManager.spawnEnemy(Slime, math.random(minSpawnX, maxSpawnX), math.random(minSpawnY, maxSpawnY))
     end
     -- Spawn Timer
@@ -137,7 +140,9 @@ function GameScene.init()
     -- Deck
     -- ===== Temp values =====
     local cardList = {}
-    cardList[1] = CARDS.zap
+    -- table.insert(cardList, CARDS.lightningStrike)
+    -- table.insert(cardList, CARDS.zap)
+    table.insert(cardList, CARDS.flamethrower)
     -- for _, card in pairs(CARDS) do
     --     table.insert(cardList, card)
     -- end
@@ -171,6 +176,9 @@ function GameScene.update()
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, 1, timeLerpRate)
         local deltaTime <const> = dt * deltaTimeMultiplier
 
+        -- Update timers
+        gameTimerUpdate(deltaTime)
+
         -- Update enemies
         enemyUpdate(deltaTime)
 
@@ -195,6 +203,9 @@ function GameScene.update()
     elseif state == STATES.selecting then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
         local deltaTime <const> = dt * deltaTimeMultiplier
+
+        -- Update timers
+        gameTimerUpdate(deltaTime)
 
         -- Update enemies
         enemyUpdate(deltaTime)
@@ -225,6 +236,9 @@ function GameScene.update()
     elseif state == STATES.aiming then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
         local deltaTime <const> = dt * deltaTimeMultiplier
+
+        -- Update timers
+        gameTimerUpdate(deltaTime)
 
         -- Update enemies
         enemyUpdate(deltaTime)

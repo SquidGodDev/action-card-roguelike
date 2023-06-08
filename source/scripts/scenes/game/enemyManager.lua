@@ -177,6 +177,8 @@ function EnemyManager.damageEnemy(enemyIndex, damage)
     enemyHealth[enemyIndex] = health
 end
 
+local damageEnemy = enemyManager.damageEnemy
+
 local function ccw(x1, y1, x2, y2, x3, y3)
     return (y3 - y1) * (x2 - x1) > (y2 - y1) * (x3 - x1)
 end
@@ -185,6 +187,9 @@ local function intersect(x1, y1, x2, y2, x3, y3, x4, y4)
     return ccw(x1, y1, x3, y3, x4, y4) ~= ccw(x2, y2, x3, y3, x4, y4) and ccw(x1, y1, x2, y2, x3, y3) ~= ccw(x1, y1, x2, y2, x4, y4)
 end
 
+-- Initially written by ChatGPT and adapted. I find these common operations are where ChatGPT shines. Prompt:
+-- Rectangles are represented by a point indicating their top left corner, a width, and a height. 
+-- Write a function in Lua that takes a line segment and a rectangle and returns whether or not the line segment intersects the rectangle.
 local function lineIntersectsEnemy(enemyIndex, segmentStartX, segmentStartY, segmentEndX, segmentEndY)
     local rectX, rectY = enemyX[enemyIndex], enemyY[enemyIndex]
     local rectRight = rectX + enemyWidth[enemyIndex]
@@ -209,12 +214,43 @@ local function lineIntersectsEnemy(enemyIndex, segmentStartX, segmentStartY, seg
     return false
 end
 
-local damageEnemy = enemyManager.damageEnemy
-
 function EnemyManager.damageEnemyAlongLine(damage, segStartX, segStartY, segEndX, segEndY)
     for i=#activeIndexes, 1, -1 do
         local enemyIndex <const> = activeIndexes[i]
         if lineIntersectsEnemy(enemyIndex, segStartX, segStartY, segEndX, segEndY) then
+            damageEnemy(enemyIndex, damage)
+        end
+    end
+end
+
+-- Initially written by ChatGPT and adapted. Prompt:
+-- Rectangles are represented by a point indicating their top left corner, a width, and a height. 
+-- Write a function in Lua that takes in a single rectangle and returns if it overlaps with another existing rectangle.
+-- Instead of taking in a rectangle object, rewrite the function to take in each individual element as separate arguments.
+local function rectIntersectsEnemy(index, x1, y1, width1, height1)
+    local rect1_right = x1 + width1
+    local rect1_bottom = y1 + height1
+
+    local x2, y2 = enemyX[index], enemyY[index]
+    local width2, height2 = enemyHeight[index], enemyWidth[index]
+
+    local rect2_right = x2 + width2
+    local rect2_bottom = y2 + height2
+
+    if x1 < rect2_right and
+       rect1_right > x2 and
+       y1 < rect2_bottom and
+       rect1_bottom > y2 then
+      return true -- The rectangles overlap
+    else
+      return false -- The rectangles do not overlap
+    end
+end
+
+function EnemyManager.damageEnemyInRect(damage, x, y, width, height)
+    for i=#activeIndexes, 1, -1 do
+        local enemyIndex <const> = activeIndexes[i]
+        if rectIntersectsEnemy(enemyIndex, x, y, width, height) then
             damageEnemy(enemyIndex, damage)
         end
     end
