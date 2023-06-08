@@ -2,6 +2,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 local ringInt = math.ringInt
+local clamp = math.clamp
 
 EnemyManager = {}
 local enemyManager = EnemyManager
@@ -54,6 +55,8 @@ local player
 local playerWidthOffset, playerHeightOffset
 local playerWidth, playerHeight
 
+local minX, maxX, minY, maxY
+
 local function overlapsPlayer(index, pTLX, pTLY, pBRX, pBRY, topLeftX, topLeftY)
     local bottomRightX = topLeftX + enemyWidth[index]
     local bottomRightY = topLeftY + enemyHeight[index]
@@ -73,6 +76,10 @@ function EnemyManager.init(_player)
     player = _player
     playerWidthOffset, playerHeightOffset = player.widthOffset, player.heightOffset
     playerWidth, playerHeight = player.width, player.height
+
+    local gameScene = GameScene
+    minX, maxX = gameScene.minX, gameScene.maxX
+    minY, maxY = gameScene.minY, gameScene.maxY
 
     availableIndexes = queue.new(maxEnemyCount)
     for i=1, maxEnemyCount do
@@ -110,8 +117,8 @@ function EnemyManager.update(dt)
 
         local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex] * dt
         local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex] * dt
-        enemyX[enemyIndex] = x
-        enemyY[enemyIndex] = y
+        enemyX[enemyIndex] = clamp(x, minX, maxX)
+        enemyY[enemyIndex] = clamp(y, minY, maxY)
 
         local collisionTime = enemyCollisionTimer[enemyIndex]
         if collisionTime > 0 then

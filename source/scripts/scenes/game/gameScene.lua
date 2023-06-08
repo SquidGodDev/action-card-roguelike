@@ -69,6 +69,11 @@ local walls = {
     bottomWallSprite
 }
 
+local minX, maxX = -200, 600
+local minY, maxY = -120, 360
+local setLineWidth = gfx.setLineWidth
+local drawLine = gfx.drawLine
+
 local background = gfx.image.new(400, 240, gfx.kColorBlack)
 
 local setDisplayOffset = pd.display.setOffset
@@ -85,9 +90,12 @@ function GameScene.init()
 
     gfx.setBackgroundColor(gfx.kColorBlack)
 
-    for _, wall in ipairs(walls) do
-        wall:add()
-    end
+    gameScene.minX, gameScene.maxX = minX, maxX
+    gameScene.minY, gameScene.maxY = minY, maxY
+
+    -- for _, wall in ipairs(walls) do
+    --     wall:add()
+    -- end
 
     -- Screen Shake
     shakeTimer = pd.timer.new(500, 5, 0)
@@ -118,13 +126,11 @@ function GameScene.init()
     gameTimer.init()
 
     -- Enemies
-    local minSpawnX, maxSpawnX = -300, 600
-    local minSpawnY, maxSpawnY = -200, 400
     enemyManager.init(player)
 
     -- Spawn all at once
     for _=1, 50 do
-        enemyManager.spawnEnemy(Slime, math.random(minSpawnX, maxSpawnX), math.random(minSpawnY, maxSpawnY))
+        enemyManager.spawnEnemy(Slime, math.random(minX + 10, maxX - 10), math.random(minY + 10, maxY - 10))
     end
     -- Spawn Timer
     -- local enemyCount = 0
@@ -171,6 +177,13 @@ function GameScene.update()
 		dt = (current_time - previous_time) / 1000.0
 	end
 	previous_time = current_time
+
+    -- Draw walls
+    setLineWidth(4)
+    drawLine(minX, minY, minX, maxY) -- Left wall
+    drawLine(maxX, minY, maxX, maxY) -- Right wall
+    drawLine(minX, minY, maxX, minY) -- Top wall
+    drawLine(minX, maxY, maxX, maxY) -- Bottom wall
 
     if state == STATES.moving then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, 1, timeLerpRate)

@@ -3,6 +3,7 @@ local gfx <const> = pd.graphics
 
 local refreshRate <const> = pd.display.getRefreshRate()
 local ringInt <const> = math.ringInt
+local clamp <const> = math.clamp
 
 local drawModeCopy <const> = gfx.kDrawModeCopy
 local drawModeFillWhite <const> = gfx.kDrawModeFillWhite
@@ -67,6 +68,7 @@ local health
 local maxHealth
 
 local gameScene
+local minX, minY, maxX, maxY
 
 player.width, player.height = 14, 24
 player.widthOffset, player.heightOffset = player.width/2, 4
@@ -112,6 +114,8 @@ function Player.init(_health, _maxHealth)
     flashTime = 0
 
     gameScene = GameScene
+    minX, maxX = gameScene.minX, gameScene.maxX
+    minY, maxY = gameScene.minY, gameScene.maxY
 end
 
 function Player.getHealth()
@@ -225,6 +229,9 @@ function Player.update(dt, onlyDraw)
             x += xVelocity
             y += yVelocity
         end
+
+        x = clamp(x, minX, maxX)
+        y = clamp(y, minY, maxY)
 
         local lerp = 0.1
         cameraXOffset += (x - cameraXOffset - 200) * lerp

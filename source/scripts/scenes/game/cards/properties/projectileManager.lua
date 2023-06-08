@@ -10,6 +10,8 @@ local enemyHeight
 local getEnemyIndexes
 local damageEnemy
 
+local minX, maxX, minY, maxY
+
 local function overlapsEnemy(pTLX, pTLY, pBRX, pBRY, enemyIndex)
     local eTLX = enemyX[enemyIndex]
     local eTLY = enemyY[enemyIndex]
@@ -53,6 +55,10 @@ function ProjectileManager.init()
     enemyHeight = EnemyManager.enemyHeight
     getEnemyIndexes = EnemyManager.getActiveIndexes
     damageEnemy = EnemyManager.damageEnemy
+
+    local gameScene = GameScene
+    minX, maxX = gameScene.minX, gameScene.maxX
+    minY, maxY = gameScene.minY, gameScene.maxY
 end
 
 function ProjectileManager.update(dt, onlyDraw)
@@ -81,7 +87,11 @@ function ProjectileManager.update(dt, onlyDraw)
             projectileX[projectileIndex] = x
             projectileY[projectileIndex] = y
             local diameter = projectileDiameter[projectileIndex]
-            if projectileIsPlayer[projectileIndex] then
+
+            if x <= minX or x >= maxX or y <= minY or y >= maxY then
+                table.remove(activeIndexes, i)
+                queue.push(availableIndexes, projectileIndex)
+            elseif projectileIsPlayer[projectileIndex] then
                 local pTLX = x
                 local pTLY = y
                 local pBRX = x + projectileDiameter[projectileIndex]
