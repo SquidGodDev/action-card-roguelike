@@ -19,14 +19,14 @@ local waitTime <const> = 2
 local moveTime <const> = 1
 local moveSpeed <const> = 1 * refreshRate
 
-Slime = {
+Blight = {
     health = 4,
-    imagetable = playdate.graphics.imagetable.new('assets/images/enemies/cloudEnemy'),
+    imagetable = playdate.graphics.imagetable.new('assets/images/enemies/blight'),
     frameTime = .033, -- 150ms
     collisionDamage = 1
 }
 
-function Slime.moveFunction(index, playerX, playerY)
+function Blight.moveFunction(index, playerX, playerY)
     local moveState = enemyMoveState[index]
     if moveState == 0 then
         enemySpeedX[index] = 0

@@ -44,6 +44,7 @@ import 'scripts/scenes/game/cards/deck'
 import 'scripts/scenes/game/player'
 import 'scripts/scenes/game/enemyManager'
 import 'scripts/scenes/game/enemies/slime'
+import 'scripts/scenes/game/enemies/blight'
 import 'scripts/scenes/game/gameScene'
 import 'scripts/scenes/title/titleScene'
 

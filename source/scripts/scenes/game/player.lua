@@ -4,6 +4,7 @@ local gfx <const> = pd.graphics
 local refreshRate <const> = pd.display.getRefreshRate()
 local ringInt <const> = math.ringInt
 local clamp <const> = math.clamp
+local ceil <const> = math.ceil
 
 local drawModeCopy <const> = gfx.kDrawModeCopy
 local drawModeFillWhite <const> = gfx.kDrawModeFillWhite
@@ -24,16 +25,16 @@ local player = Player
 local moveSpeed <const> = 3 * refreshRate
 local prevDiagonal = false
 local cameraXOffset, cameraYOffset = 0, 0
-local playerImagetable <const> = gfx.imagetable.new('assets/images/player/player')
+local playerImagetable <const> = gfx.imagetable.new('assets/images/player/fireHead')
 local playerImage = playerImagetable[1]
 local frameStart, frameEnd
 local frameIndex
 local frameTime
 local frameTimeCounter
-local idleFrameStart <const>, idleFrameEnd <const> = 1, 2
-local idleFrameTime <const> = .3 -- 300ms
-local runFrameStart <const>, runFrameEnd <const> = 3, 7
-local runFrameTime <const> = .15 -- 150ms
+local idleFrameStart <const>, idleFrameEnd <const> = 1, 1
+local idleFrameTime <const> = .033 -- 300ms
+local runFrameStart <const>, runFrameEnd <const> = 1, #playerImagetable
+local runFrameTime <const> = .033 -- 150ms
 
 local particleManager <const> = ParticleManager
 local dashFadeImagetable = gfx.imagetable.new('assets/images/player/playerFade')
@@ -149,7 +150,7 @@ end
 function Player.update(dt, onlyDraw)
     local x, y = player.x, player.y
     frameTimeCounter -= dt
-    if frameTimeCounter <= 0 then
+    if frameTimeCounter <= 0.005 then
         frameIndex = ringInt(frameIndex + 1, frameStart, frameEnd)
         frameTimeCounter = frameTime
         playerImage = playerImagetable[frameIndex]

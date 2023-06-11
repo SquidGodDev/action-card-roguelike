@@ -129,8 +129,10 @@ function GameScene.init()
     enemyManager.init(player)
 
     -- Spawn all at once
-    for _=1, 50 do
-        enemyManager.spawnEnemy(Slime, math.random(minX + 10, maxX - 10), math.random(minY + 10, maxY - 10))
+    local enemyList = {Slime, Blight}
+    local enemyCount = 15
+    for _=1, enemyCount do
+        enemyManager.spawnEnemy(enemyList[math.random(#enemyList)], math.random(minX + 10, maxX - 10), math.random(minY + 10, maxY - 10))
     end
     -- Spawn Timer
     -- local enemyCount = 0
@@ -146,8 +148,8 @@ function GameScene.init()
     -- Deck
     -- ===== Temp values =====
     local cardList = {}
-    -- table.insert(cardList, CARDS.lightningStrike)
-    -- table.insert(cardList, CARDS.zap)
+    table.insert(cardList, CARDS.lightningStrike)
+    table.insert(cardList, CARDS.zap)
     table.insert(cardList, CARDS.flamethrower)
     -- for _, card in pairs(CARDS) do
     --     table.insert(cardList, card)
