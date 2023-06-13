@@ -3,6 +3,9 @@ local gfx <const> = pd.graphics
 
 local ringInt = math.ringInt
 local clamp = math.clamp
+local floor = math.floor
+
+local drawImagetable = gfx.imagetable.drawImage
 
 EnemyManager = {}
 local enemyManager = EnemyManager
@@ -29,9 +32,7 @@ local enemyMoveTime <const> = table.create(maxEnemyCount, 0)
 local enemyAttackFunction <const> = table.create(maxEnemyCount, 0)
 local enemyAttackTime <const> = table.create(maxEnemyCount, 0)
 local enemyMoveState <const> = table.create(maxEnemyCount, 0)
-local enemyImage <const> = table.create(maxEnemyCount, 0)
 local enemyImagetable <const> = table.create(maxEnemyCount, 0)
-local enemyDrawIndex <const> = table.create(maxEnemyCount, 0)
 local enemyFrameTime <const> = table.create(maxEnemyCount, 0)
 local enemyFrameTimeCounter <const> = table.create(maxEnemyCount, 0)
 local enemyWidth <const> = table.create(maxEnemyCount, 0)
@@ -133,28 +134,22 @@ function EnemyManager.update(dt)
             end
         end
 
+        local imagetable = enemyImagetable[enemyIndex]
         local frameTimeCounter = enemyFrameTimeCounter[enemyIndex]
-        frameTimeCounter -= dt
-        if frameTimeCounter <= 0 then
-            local imagetable = enemyImagetable[enemyIndex]
-            local drawIndex = enemyDrawIndex[enemyIndex]
-            drawIndex = ringInt(drawIndex + 1, 1, #imagetable)
-            enemyDrawIndex[enemyIndex] = drawIndex
-            enemyImage[enemyIndex] = imagetable[drawIndex]
-            enemyFrameTimeCounter[enemyIndex] = enemyFrameTime[enemyIndex]
-        else
-            enemyFrameTimeCounter[enemyIndex] = frameTimeCounter
-        end
+        frameTimeCounter += dt
+        enemyFrameTimeCounter[enemyIndex] = frameTimeCounter
+        local frameTime = enemyFrameTime[enemyIndex]
+        local frameIndex = ringInt(1 + floor(frameTimeCounter / frameTime), 1, #imagetable)
 
         local flashTime = flashTimer[enemyIndex]
         if flashTime > 0 then
             flashTime -= dt
             flashTimer[enemyIndex] = flashTime
             gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-            enemyImage[enemyIndex]:draw(x, y)
+            drawImagetable(imagetable, frameIndex, x, y)
             gfx.setImageDrawMode(gfx.kDrawModeCopy)
         else
-            enemyImage[enemyIndex]:draw(x, y)
+            drawImagetable(imagetable, frameIndex, x, y)
         end
     end
 end
@@ -289,13 +284,10 @@ function EnemyManager.spawnEnemy(enemy, x, y)
 
     local imagetable = enemy.imagetable
     enemyImagetable[enemyIndex] = imagetable
-    local drawIndex = math.random(1, #imagetable)
-    enemyDrawIndex[enemyIndex] = drawIndex
     local frameTime = enemy.frameTime
     enemyFrameTime[enemyIndex] = frameTime
-    enemyFrameTimeCounter[enemyIndex] = frameTime
-    local image = imagetable[drawIndex]
-    enemyImage[enemyIndex] = image
+    enemyFrameTimeCounter[enemyIndex] = math.random()
+    local image = imagetable[1]
     enemyWidth[enemyIndex], enemyHeight[enemyIndex] = image:getSize()
 
     enemyCollisionDamage[enemyIndex] = enemy.collisionDamage

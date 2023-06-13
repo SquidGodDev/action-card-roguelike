@@ -21,7 +21,7 @@ local moveSpeed <const> = 1 * refreshRate
 
 Slime = {
     health = 4,
-    imagetable = playdate.graphics.imagetable.new('assets/images/enemies/cloudEnemy'),
+    imagetable = playdate.graphics.imagetable.new('assets/images/enemies/cloud'),
     frameTime = .033, -- 150ms
     collisionDamage = 1
 }
