@@ -4,7 +4,7 @@ local gfx <const> = pd.graphics
 local refreshRate <const> = pd.display.getRefreshRate()
 local ringInt <const> = math.ringInt
 local clamp <const> = math.clamp
-local ceil <const> = math.ceil
+local floor <const> = math.floor
 
 local drawModeCopy <const> = gfx.kDrawModeCopy
 local drawModeFillWhite <const> = gfx.kDrawModeFillWhite
@@ -25,16 +25,14 @@ local player = Player
 local moveSpeed <const> = 3 * refreshRate
 local prevDiagonal = false
 local cameraXOffset, cameraYOffset = 0, 0
-local playerImagetable <const> = gfx.imagetable.new('assets/images/player/fireHead')
-local playerImage = playerImagetable[1]
+local idleImagetable <const> = gfx.imagetable.new('assets/images/player/fireHeadIdle')
+local idleFrameTime <const> = 0.033
+local runImagetable <const> = gfx.imagetable.new('assets/images/player/fireHeadRun')
+local runFrameTime <const> = 0.033
+local playerImagetable
 local frameStart, frameEnd
-local frameIndex
 local frameTime
 local frameTimeCounter
-local idleFrameStart <const>, idleFrameEnd <const> = 1, 1
-local idleFrameTime <const> = .033 -- 300ms
-local runFrameStart <const>, runFrameEnd <const> = 1, #playerImagetable
-local runFrameTime <const> = .033 -- 150ms
 
 local particleManager <const> = ParticleManager
 local dashFadeImagetable = gfx.imagetable.new('assets/images/player/playerFade')
@@ -74,31 +72,27 @@ local minX, minY, maxX, maxY
 player.width, player.height = 14, 24
 player.widthOffset, player.heightOffset = player.width/2, 4
 
+local function setActiveImagetable(imagetable, _frameTime)
+    playerImagetable = imagetable
+    frameStart, frameEnd = 1, #imagetable
+    frameTime = _frameTime
+    frameTimeCounter = 0
+    playerImage = imagetable[frameStart]
+end
+
 local function switchToIdle()
     animationState = animationStates.idle
-    frameStart, frameEnd = idleFrameStart, idleFrameEnd
-    frameIndex = frameStart
-    frameTime = idleFrameTime
-    frameTimeCounter = frameTime
-    playerImage = playerImagetable[frameIndex]
+    setActiveImagetable(idleImagetable, idleFrameTime)
 end
 
 local function switchToRun()
     animationState = animationStates.run
-    frameStart, frameEnd = runFrameStart, runFrameEnd
-    frameIndex = frameStart
-    frameTime = runFrameTime
-    frameTimeCounter = frameTime
-    playerImage = playerImagetable[frameIndex]
+    setActiveImagetable(runImagetable, runFrameTime)
 end
 
 local function switchToDash()
     animationState = animationStates.dash
-    frameStart, frameEnd = runFrameStart, runFrameEnd
-    frameIndex = frameStart
-    frameTime = runFrameTime
-    frameTimeCounter = frameTime
-    playerImage = playerImagetable[frameIndex]
+    setActiveImagetable(runImagetable, runFrameTime)
 end
 
 function Player.init(_health, _maxHealth)
@@ -149,12 +143,9 @@ end
 
 function Player.update(dt, onlyDraw)
     local x, y = player.x, player.y
-    frameTimeCounter -= dt
-    if frameTimeCounter <= 0.005 then
-        frameIndex = ringInt(frameIndex + 1, frameStart, frameEnd)
-        frameTimeCounter = frameTime
-        playerImage = playerImagetable[frameIndex]
-    end
+    frameTimeCounter += dt
+    frameIndex = ringInt(frameStart + floor(frameTimeCounter / frameTime), frameStart, frameEnd)
+    playerImage = playerImagetable[frameIndex]
     if flashTime > 0 then
         flashTime -= dt
     end
