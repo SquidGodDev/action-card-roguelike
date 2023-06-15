@@ -1,8 +1,11 @@
+local mathMin = math.min
+local mathMax = math.max
+
 function math.clamp(value, min, max)
 	if (min > max) then
 		min, max = max, min
 	end
-	return math.max(min, math.min(max, value))
+	return mathMax(min, mathMin(max, value))
 end
 
 function math.ring(value, min, max)
@@ -12,8 +15,9 @@ function math.ring(value, min, max)
 	return min + (value - min) % (max - min)
 end
 
+local ring = math.ring
 function math.ringInt(value, min, max)
-	return math.ring(value, min, max + 1)
+	return ring(value, min, max + 1)
 end
 
 function math.sign(value)

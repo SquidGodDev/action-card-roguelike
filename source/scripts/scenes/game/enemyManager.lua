@@ -117,9 +117,12 @@ function EnemyManager.update(dt)
         end
 
         local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex] * dt
+        if x < minX then x = minX elseif x > maxX then x = maxX end
         local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex] * dt
-        enemyX[enemyIndex] = clamp(x, minX, maxX)
-        enemyY[enemyIndex] = clamp(y, minY, maxY)
+        if y < minY then y = minY elseif y > maxY then y = maxY end
+
+        enemyX[enemyIndex] = x
+        enemyY[enemyIndex] = y
 
         local collisionTime = enemyCollisionTimer[enemyIndex]
         if collisionTime > 0 then

@@ -13,10 +13,6 @@ local abs = math.abs
 local getCrankChange = pd.getCrankChange
 
 local buttonJustPressed <const> = pd.buttonJustPressed
-local leftButton <const> = pd.kButtonLeft
-local rightButton <const> = pd.kButtonRight
-local upButton <const> = pd.kButtonUp
-local downButton <const> = pd.kButtonDown
 local bButton <const> = pd.kButtonB
 local aButton <const> = pd.kButtonA
 
@@ -97,10 +93,7 @@ local gameScene = GameScene
 
 function GameScene.init()
     -- Environment
-    gfx.sprite.setBackgroundDrawingCallback(function()
-        background:draw(0, 0)
-    end)
-
+    background:draw(0, 0)
     gfx.setBackgroundColor(gfx.kColorBlack)
 
     gameScene.minX, gameScene.maxX = minX, maxX
@@ -143,7 +136,7 @@ function GameScene.init()
 
     -- Spawn all at once
     local enemyList = {Slime, Blight}
-    local enemyCount = 15
+    local enemyCount = 30
     for _=1, enemyCount do
         enemyManager.spawnEnemy(enemyList[math.random(#enemyList)], math.random(minX + 10, maxX - 10), math.random(minY + 10, maxY - 10))
     end
