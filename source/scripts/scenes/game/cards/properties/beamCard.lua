@@ -11,19 +11,22 @@ local addDraw = drawManager.addDraw
 BeamCard = {}
 
 --- Requires: damage, length
-function BeamCard.cast(x, y, angle, data)
+function BeamCard.cast(x, y, angle, data, player)
     local stats = data.stats
     local length = stats.length
     local damage = stats.damage
     local angleInRad = rad(angle)
-    local x2 = x + cos(angleInRad) * length
-    local y2 = y + sin(angleInRad) * length
-    EnemyManager.damageEnemyAlongLine(damage, x, y, x2, y2)
+    local xOffset = cos(angleInRad) * length
+    local yOffset = sin(angleInRad) * length
+    EnemyManager.damageEnemyAlongLine(damage, x, y, x + xOffset, y + yOffset)
     local drawTime = 0.5
     local lineMaxWidth = 5
     addDraw(drawTime, function(time)
         gfx.setColor(gfx.kColorWhite)
         gfx.setLineWidth(lineMaxWidth * (time/drawTime))
-        gfx.drawLine(x, y, x2, y2)
+        local x1, y1 = player.x, player.y
+        local x2 = x + xOffset
+        local y2 = y + yOffset
+        gfx.drawLine(x1, y1, x2, y2)
     end)
 end

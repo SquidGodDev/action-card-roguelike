@@ -17,7 +17,7 @@ end
 AOECard = {}
 
 --- Requires: damage, radius
-function AOECard.cast(x, y, _, data)
+function AOECard.cast(x, y, _, data, player)
     local stats = data.stats
     local damage = stats.damage
     local radius = stats.radius
@@ -26,6 +26,6 @@ function AOECard.cast(x, y, _, data)
     addDraw(drawTime, function(time)
         gfx.setColor(gfx.kColorWhite)
         local drawRadius = radius * easeOutCubic(time/drawTime)
-        gfx.fillCircleAtPoint(x, y, drawRadius)
+        gfx.fillCircleAtPoint(player.x, player.y, drawRadius)
     end)
 end

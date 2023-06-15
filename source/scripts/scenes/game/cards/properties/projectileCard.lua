@@ -8,7 +8,7 @@ local createProjectile = projectileManager.createProjectile
 ProjectileCard = {}
 
 --- Requires: speed, diameter, damage
-function ProjectileCard.cast(x, y, angle, data)
+function ProjectileCard.cast(x, y, angle, data, _)
     local stats = data.stats
     local speed = stats.speed
     local diameter = stats.diameter

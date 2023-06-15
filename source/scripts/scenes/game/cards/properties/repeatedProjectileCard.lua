@@ -13,7 +13,7 @@ local addTimer = gameTimer.addTimer
 RepeatedProjectileCard = {}
 
 --- Requires: speed, diameter, damage, count, interval, spread
-function RepeatedProjectileCard.cast(x, y, angle, data)
+function RepeatedProjectileCard.cast(x, y, angle, data, player)
     local stats = data.stats
     local speed = stats.speed
     local diameter = stats.diameter
@@ -30,7 +30,6 @@ function RepeatedProjectileCard.cast(x, y, angle, data)
     count -= 1
     createProjectile(x, y, xSpeed, ySpeed, diameter, damage, isPlayer)
 
-    local player = Player
     for i=1, count do
         local time = i * interval
         addTimer(time, function()

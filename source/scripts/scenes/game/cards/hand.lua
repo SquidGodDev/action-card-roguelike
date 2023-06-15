@@ -139,7 +139,7 @@ function Hand:playCard(angle)
     if self.cardSelectIndex > #self.cards then
         self.cardSelectIndex = #self.cards
     end
-    playedCard:cast(self.player.x, self.player.y, angle)
+    playedCard:cast(self.player.x, self.player.y, angle, self.player)
     self.deck:discard(playedCard)
     local animateTimer = pd.timer.new(700, playedCard.y, -120, pd.easingFunctions.outCubic)
     animateTimer.updateCallback = function(timer)

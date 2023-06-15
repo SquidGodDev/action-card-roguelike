@@ -36,8 +36,8 @@ function Card:getCost()
     return self.cost
 end
 
-function Card:cast(x, y, angle)
-    self.castFunction(x, y, angle, self.data)
+function Card:cast(x, y, angle, player)
+    self.castFunction(x, y, angle, self.data, player)
 end
 
 function Card:isAimable()
