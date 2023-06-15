@@ -8,6 +8,17 @@ local floor = math.floor
 local random = math.random
 local cos = math.cos
 local sin = math.sin
+local abs = math.abs
+
+local getCrankChange = pd.getCrankChange
+
+local buttonJustPressed <const> = pd.buttonJustPressed
+local leftButton <const> = pd.kButtonLeft
+local rightButton <const> = pd.kButtonRight
+local upButton <const> = pd.kButtonUp
+local downButton <const> = pd.kButtonDown
+local bButton <const> = pd.kButtonB
+local aButton <const> = pd.kButtonA
 
 local lerp <const> = function(a, b, t)
     if a == b then
@@ -78,6 +89,8 @@ local background = gfx.image.new(400, 240, gfx.kColorBlack)
 
 local setDisplayOffset = pd.display.setOffset
 local shakeTimer
+
+local crankAccelerationThreshold = 5
 
 GameScene = {}
 local gameScene = GameScene
@@ -212,8 +225,18 @@ function GameScene.update()
         -- Update UI
         uiUpdate(deltaTime, true)
 
-        if pd.buttonJustPressed(pd.kButtonA) and not hand:isEmpty() then
+        local _, acceleratedChange = getCrankChange()
+
+        if abs(acceleratedChange) > crankAccelerationThreshold and not hand:isEmpty() then
             gameScene.revealHand()
+        else
+            if buttonJustPressed(aButton) then
+                player.basicAttack()
+            end
+
+            if buttonJustPressed(bButton) then
+                player.dash()
+            end
         end
     elseif state == STATES.selecting then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)

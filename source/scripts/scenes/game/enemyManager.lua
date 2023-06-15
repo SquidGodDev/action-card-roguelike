@@ -258,6 +258,12 @@ function EnemyManager.damageEnemyInRect(damage, x, y, width, height)
     end
 end
 
+local damageEnemyInRect = enemyManager.damageEnemyInRect
+function EnemyManager.damageEnemyInRectCentered(damage, x, y, width, height)
+    local halfWidth, halfHeight = width/2, height/2
+    damageEnemyInRect(damage, x - halfWidth, y - halfHeight, width, height)
+end
+
 -- Enemy Object:
 --  health
 --  image

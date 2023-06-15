@@ -5,6 +5,7 @@ local refreshRate <const> = pd.display.getRefreshRate()
 local ringInt <const> = math.ringInt
 local clamp <const> = math.clamp
 local floor <const> = math.floor
+local sqrt <const> = math.sqrt
 
 local drawModeCopy <const> = gfx.kDrawModeCopy
 local drawModeFillWhite <const> = gfx.kDrawModeFillWhite
@@ -12,12 +13,10 @@ local setDrawMode <const> = gfx.setImageDrawMode
 
 -- Input Constants
 local buttonIsPressed <const> = pd.buttonIsPressed
-local buttonJustPressed <const> = pd.buttonJustPressed
 local leftButton <const> = pd.kButtonLeft
 local rightButton <const> = pd.kButtonRight
 local upButton <const> = pd.kButtonUp
 local downButton <const> = pd.kButtonDown
-local bButton <const> = pd.kButtonB
 
 Player = {}
 local player = Player
@@ -41,6 +40,9 @@ local dashFadeFrameTime = 0.05
 
 local uiManager <const> = UIManager
 
+local drawManager = DrawManager
+local addDraw = drawManager.addDraw
+
 local animationStates <const> = {
     idle = 1,
     run = 2,
@@ -63,9 +65,12 @@ local dashSpeedDeceleration <const> = 3 * refreshRate
 local dashXVelocity = 0
 local dashYVelocity = 0
 
+local lastDirX, lastDirY = 1, 0
+
 local health
 local maxHealth
 
+local enemyManager
 local gameScene
 local minX, minY, maxX, maxY
 
@@ -108,6 +113,8 @@ function Player.init(_health, _maxHealth)
 
     flashTime = 0
 
+    enemyManager = EnemyManager
+
     gameScene = GameScene
     minX, maxX = gameScene.minX, gameScene.maxX
     minY, maxY = gameScene.minY, gameScene.maxY
@@ -139,6 +146,54 @@ end
 
 function Player.die()
     -- Die
+end
+
+function Player.basicAttack()
+    local damage = 1
+    local distance = 40
+    local size = 30
+    local magnitude = sqrt(lastDirX^2 + lastDirY^2)
+    local x = player.x + distance * lastDirX / magnitude
+    local y = player.y + distance * lastDirY / magnitude
+    enemyManager.damageEnemyInRectCentered(damage, x, y, size, size)
+
+    addDraw(0.1, function(time)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillCircleAtPoint(x, y, size)
+    end)
+end
+
+function Player.dash()
+    local xDir, yDir = 0, 0
+    if buttonIsPressed(leftButton) then
+        xDir -= 1
+        flip = flippedX
+    end
+    if buttonIsPressed(rightButton) then
+        xDir += 1
+        flip = unflipped
+    end
+    if buttonIsPressed(upButton) then
+        yDir -= 1
+    end
+    if buttonIsPressed(downButton) then
+        yDir += 1
+    end
+    local isIdle = (xDir == 0) and (yDir == 0)
+    if dashCooldownTimer > 0 or isIdle then
+        return
+    end
+
+    local diagonal = (xDir ~= 0) and (yDir ~= 0)
+    local normalizedXDir = diagonal and (xDir * 0.7) or xDir
+    local normalizedYDir = diagonal and (yDir * 0.7) or yDir
+
+    switchToDash()
+    dashCooldownTimer = dashCooldown
+    dashTimer = dashTime
+
+    dashXVelocity = normalizedXDir * dashSpeed
+    dashYVelocity = normalizedYDir * dashSpeed
 end
 
 function Player.update(dt, onlyDraw)
@@ -175,7 +230,7 @@ function Player.update(dt, onlyDraw)
             end
         else
             local xDir, yDir = 0, 0
-            if buttonIsPressed(leftButton)  then
+            if buttonIsPressed(leftButton) then
                 xDir -= 1
                 flip = flippedX
             end
@@ -183,8 +238,15 @@ function Player.update(dt, onlyDraw)
                 xDir += 1
                 flip = unflipped
             end
-            if buttonIsPressed(upButton)    then yDir -= 1 end
-            if buttonIsPressed(downButton)  then yDir += 1 end
+            if buttonIsPressed(upButton) then
+                yDir -= 1
+            end
+            if buttonIsPressed(downButton) then
+                yDir += 1
+            end
+            if (xDir ~= 0) or (yDir ~= 0) then
+                lastDirX, lastDirY = xDir, yDir
+            end
             local diagonal = (xDir ~= 0) and (yDir ~= 0)
             if not prevDiagonal and diagonal then
                 x = math.floor(x) + .5
@@ -207,17 +269,6 @@ function Player.update(dt, onlyDraw)
                 switchToRun()
             end
 
-            -- Handle dash
-            if buttonJustPressed(bButton) and dashCooldownTimer <= 0 and not isIdle then
-                switchToDash()
-                dashCooldownTimer = dashCooldown
-                dashTimer = dashTime
-
-                dashXVelocity = normalizedXDir * dashSpeed
-                dashYVelocity = normalizedYDir * dashSpeed
-                xVelocity = dashXVelocity * dt
-                yVelocity = dashYVelocity * dt
-            end
             x += xVelocity
             y += yVelocity
         end
