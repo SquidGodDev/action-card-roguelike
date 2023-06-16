@@ -47,7 +47,11 @@ function Card:update(dt, draw)
         local drawRadius = 4
         local offsetX, offsetY = gfx.getDrawOffset()
         local timerX, timerY = self.x - self.timerXOffset - offsetX, self.y - self.timerYOffset - offsetY
-        gfx.setColor(gfx.kColorBlack)
+        if self.curCooldown <= 0 then
+            gfx.setColor(gfx.kColorWhite)
+        else
+            gfx.setColor(gfx.kColorBlack)
+        end
         gfx.fillRoundRect(timerX, timerY, self.timerWidth, self.timerHeight, drawRadius)
         gfx.setColor(gfx.kColorWhite)
         local innerPadding = 2
