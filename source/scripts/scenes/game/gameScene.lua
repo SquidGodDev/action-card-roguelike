@@ -8,9 +8,6 @@ local floor = math.floor
 local random = math.random
 local cos = math.cos
 local sin = math.sin
-local abs = math.abs
-
-local getCrankChange = pd.getCrankChange
 
 local buttonJustPressed <const> = pd.buttonJustPressed
 local bButton <const> = pd.kButtonB
@@ -50,7 +47,7 @@ local STATES <const> = {
 }
 local state = STATES.moving
 local deltaTimeMultiplier = 1
-local slowedTimeMultiplier = 0.05
+local slowedTimeMultiplier <const> = 0 -- 0.05
 local timeLerpRate = 0.2
 
 local leftWallImage = gfx.image.new('assets/images/environment/leftWall')
@@ -85,8 +82,6 @@ local background = gfx.image.new(400, 240, gfx.kColorBlack)
 
 local setDisplayOffset = pd.display.setOffset
 local shakeTimer
-
-local crankAccelerationThreshold = 5
 
 GameScene = {}
 local gameScene = GameScene
@@ -153,23 +148,10 @@ function GameScene.init()
 
     -- Deck
     -- ===== Temp values =====
-    local cardList = {}
-    table.insert(cardList, CARDS.lightningStrike)
-    table.insert(cardList, CARDS.zap)
-    table.insert(cardList, CARDS.flamethrower)
-    -- for _, card in pairs(CARDS) do
-    --     table.insert(cardList, card)
-    -- end
-    deckData = {}
-    for i=1,20 do
-        local card = cardList[math.random(#cardList)]
-        deckData[i] = card
-    end
     -- =======================
-    local deck = Deck(deckData)
+    local deck = {CARDS.lightningStrike, CARDS.zap, CARDS.flamethrower}
     local maxMana = 5
     hand = Hand(deck, gameScene, player, maxMana)
-    hand:drawStartingHand()
 
     -- UI
     local drawTime = 6
@@ -218,18 +200,15 @@ function GameScene.update()
         -- Update UI
         uiUpdate(deltaTime, true)
 
-        local _, acceleratedChange = getCrankChange()
+        -- Update hand
+        hand:update(deltaTime, true)
 
-        if abs(acceleratedChange) > crankAccelerationThreshold and not hand:isEmpty() then
+        if buttonJustPressed(aButton) then
             gameScene.revealHand()
-        else
-            if buttonJustPressed(aButton) then
-                player.basicAttack()
-            end
+        end
 
-            if buttonJustPressed(bButton) then
-                player.dash()
-            end
+        if buttonJustPressed(bButton) then
+            player.dash()
         end
     elseif state == STATES.selecting then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
@@ -263,7 +242,7 @@ function GameScene.update()
         elseif  pd.buttonJustPressed(pd.kButtonA) or pd.buttonJustPressed(pd.kButtonUp) then hand:selectCard() end
 
         -- Update hand
-        hand:update()
+        hand:update(deltaTime, true)
     elseif state == STATES.aiming then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, slowedTimeMultiplier, timeLerpRate)
         local deltaTime <const> = dt * deltaTimeMultiplier
@@ -288,6 +267,9 @@ function GameScene.update()
 
         -- Update projectiles
         projectileUpdate(deltaTime)
+
+        -- Update hand
+        hand:update(deltaTime, true)
 
         if pd.buttonJustPressed(pd.kButtonA) then
             hand:playCard(aimManager:getAngle())

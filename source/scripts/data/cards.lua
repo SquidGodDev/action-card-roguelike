@@ -10,34 +10,10 @@ CARDS = {
         cast = ProjectileCard.cast,
         stats = {
             aimable = true,
-            cost = 1,
+            cooldown = 1,
             speed = 5 * refreshRate,
             diameter = 12,
             damage = 2
-        }
-    },
-    medFireball = {
-        imagePath = 'assets/images/cards/fireball',
-        sfx = '',
-        cast = ProjectileCard.cast,
-        stats = {
-            aimable = true,
-            cost = 2,
-            speed = 4 * refreshRate,
-            diameter = 16,
-            damage = 4
-        }
-    },
-    largeFireball = {
-        imagePath = 'assets/images/cards/fireball',
-        sfx = '',
-        cast = ProjectileCard.cast,
-        stats = {
-            aimable = true,
-            cost = 3,
-            speed = 3 * refreshRate,
-            diameter = 24,
-            damage = 4
         }
     },
     flamethrower = {
@@ -46,7 +22,7 @@ CARDS = {
         cast = RepeatedProjectileCard.cast,
         stats = {
             aimable = true,
-            cost = 1,
+            cooldown = 3,
             speed = 5 * refreshRate,
             diameter = 12,
             damage = 2,
@@ -60,7 +36,7 @@ CARDS = {
         sfx = '',
         stats = {
             aimable = false,
-            cost = 1,
+            cooldown = 1,
             shield = 3
         }
     },
@@ -70,7 +46,7 @@ CARDS = {
         cast = BeamCard.cast,
         stats = {
             aimable = true,
-            cost = 1,
+            cooldown = 4,
             damage = 4,
             length = 235
         }
@@ -81,7 +57,7 @@ CARDS = {
         cast = AOECard.cast,
         stats = {
             aimable = false,
-            cost = 2,
+            cooldown = 12,
             damage = 4,
             radius = 60
         }
@@ -91,7 +67,7 @@ CARDS = {
         sfx = '',
         stats = {
             aimable = false,
-            cost = 1,
+            cooldown = 1,
             drawCount = 2
         }
     }

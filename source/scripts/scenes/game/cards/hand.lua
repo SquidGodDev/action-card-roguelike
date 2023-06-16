@@ -33,17 +33,19 @@ for i=1, MAX_HAND_SIZE do
 end
 
 function Hand:init(deck, game, player, mana)
-    self.deck = deck
     self.game = game
     self.player = player
 
     self.active = false
-    self.startingDrawCount = 3
 
     self.cards = {}
+    for i=1, #deck do
+        local card = Card(0, 0, deck[i])
+        self:addCard(card)
+    end
     self.cardBaseY = 190
     self.cardSelectY = 170
-    self.cardOutY = 250
+    self.cardOutY = 240
     self.cardY = self.cardOutY
 
     self.animateTimer = nil
@@ -59,20 +61,22 @@ function Hand:isFull()
     return #self.cards >= MAX_HAND_SIZE
 end
 
-function Hand:update()
+function Hand:update(dt, draw)
     local handCount = #self.cards
     local cardPlacement = cardPlacements[handCount]
     for i=1, handCount do
         local card = self.cards[i]
-        local cardTargetX = cardPlacement[i]
-        local cardX = lerp(card.x, cardTargetX, self.cardAnimationLerpSpeed)
-        local cardTargetY = self.cardY
-        if i == self.cardSelectIndex and self.active then
-            cardTargetY = self.cardSelectY
+        if draw then
+            local cardTargetX = cardPlacement[i]
+            local cardX = lerp(card.x, cardTargetX, self.cardAnimationLerpSpeed)
+            local cardTargetY = self.cardY
+            if i == self.cardSelectIndex and self.active then
+                cardTargetY = self.cardSelectY
+            end
+            local cardY = lerp(card.y, cardTargetY, self.cardAnimationLerpSpeed)
+            card:moveTo(cardX, cardY)
         end
-        local cardY = lerp(card.y, cardTargetY, self.cardAnimationLerpSpeed)
-        card:moveTo(cardX, cardY)
-        card:update()
+        card:update(dt, draw)
     end
 end
 
@@ -111,8 +115,8 @@ function Hand:selectCard()
         return
     end
     local playedCard = self.cards[self.cardSelectIndex]
-    local enoughMana = playedCard:getCost() <= self.mana
-    if not enoughMana then
+    local onCooldown = playedCard:isOnCooldown()
+    if onCooldown then
         return
     end
     if playedCard:isAimable() then
@@ -129,25 +133,24 @@ function Hand:playCard(angle)
         return
     end
     local playedCard = self.cards[self.cardSelectIndex]
-    local cardCost = playedCard:getCost()
-    if self.mana < cardCost then
+    local onCooldown = playedCard:isOnCooldown()
+    if onCooldown then
         return
     end
 
-    self.mana -= cardCost
-    table.remove(self.cards, self.cardSelectIndex)
-    if self.cardSelectIndex > #self.cards then
-        self.cardSelectIndex = #self.cards
-    end
+    -- table.remove(self.cards, self.cardSelectIndex)
+    -- if self.cardSelectIndex > #self.cards then
+    --     self.cardSelectIndex = #self.cards
+    -- end
     playedCard:cast(self.player.x, self.player.y, angle, self.player)
-    self.deck:discard(playedCard)
-    local animateTimer = pd.timer.new(700, playedCard.y, -120, pd.easingFunctions.outCubic)
-    animateTimer.updateCallback = function(timer)
-        playedCard:moveTo(playedCard.x, timer.value)
-        playedCard:update()
-    end
+    -- self.deck:discard(playedCard)
+    -- local animateTimer = pd.timer.new(700, playedCard.y, -120, pd.easingFunctions.outCubic)
+    -- animateTimer.updateCallback = function(timer)
+    --     playedCard:moveTo(playedCard.x, timer.value)
+    --     playedCard:update()
+    -- end
 
-    self:drawCard()
+    -- self:drawCard()
 end
 
 function Hand:getHandSize()
@@ -180,7 +183,7 @@ function Hand:addCard(card)
     if #self.cards >= MAX_HAND_SIZE or not card then
         return
     end
-    card:moveTo(-50, self.cardY)
+    card:moveTo(-50, 190)
     table.insert(self.cards, 1, card)
     if #self.cards == 1 then
         self.cardSelectIndex = 1
@@ -211,20 +214,10 @@ function Hand:deactivateHand()
 end
 
 function Hand:animateIn()
-    if self.animateTimer then
-        self.animateTimer:remove()
-    end
     self.cardY = self.cardBaseY
 end
 
 function Hand:animateOut()
-    if self.animateTimer then
-        self.animateTimer:remove()
-    end
     self.cardY = self.cardOutY
-    self.animateTimer = pd.timer.new(500)
-    self.animateTimer.updateCallback = function()
-        self:update()
-    end
 end
 
