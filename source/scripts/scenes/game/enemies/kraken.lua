@@ -1,0 +1,1 @@
+-- Kraken: Move, burst turret

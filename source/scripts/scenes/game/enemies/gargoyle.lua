@@ -1,11 +1,11 @@
+-- Gargoyle: Wait, then rush at player
+
 local enemyX <const> = EnemyManager.enemyX
 local enemyY <const> = EnemyManager.enemyY
 local enemySpeedX <const> = EnemyManager.enemySpeedX
 local enemySpeedY <const> = EnemyManager.enemySpeedY
 local enemyMoveTime <const> = EnemyManager.enemyMoveTime
-local enemyAttackTime <const> = EnemyManager.enemyAttackTime
 local enemyMoveState <const> = EnemyManager.enemyMoveState
-local enemyCollisionDamage <const> = EnemyManager.collisionDamage
 
 local sqrt = math.sqrt
 local random = math.random
@@ -16,17 +16,17 @@ local gfx <const> = pd.graphics
 local refreshRate <const> = pd.display.getRefreshRate()
 
 local waitTime <const> = 2
-local moveTime <const> = 1
-local moveSpeed <const> = 1 * refreshRate
+local moveTime <const> = 3
+local moveSpeed <const> = 3 * refreshRate
 
-Blight = {
+Gargoyle = {
     health = 4,
-    imagetable = gfx.imagetable.new('assets/images/enemies/blight'),
+    imagetable = gfx.imagetable.new('assets/images/enemies/gargoyle'),
     frameTime = .033, -- 150ms
     collisionDamage = 1
 }
 
-function Blight.moveFunction(index, playerX, playerY)
+function Gargoyle.moveFunction(index, playerX, playerY)
     local moveState = enemyMoveState[index]
     if moveState == 0 then
         enemySpeedX[index] = 0
@@ -45,15 +45,3 @@ function Blight.moveFunction(index, playerX, playerY)
         enemyMoveState[index] = 0
     end
 end
-
--- Follow AI
--- function Slime.moveFunction(index, playerX, playerY)
---     local x = enemyX[index]
---     local y = enemyY[index]
---     local xDiff = playerX - x
---     local yDiff = playerY - y
---     local magnitude = sqrt(xDiff * xDiff + yDiff * yDiff)
---     enemySpeedX[index] = (xDiff / magnitude) * moveSpeed
---     enemySpeedY[index] = (yDiff / magnitude) * moveSpeed
---     enemyMoveTime[index] = 0
--- end

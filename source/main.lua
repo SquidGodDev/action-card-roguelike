@@ -23,16 +23,16 @@ import 'scripts/libraries/Utilities'
 import 'scripts/constants'
 
 -- Cards
-import 'scripts/scenes/game/gameTimer'
-import 'scripts/scenes/game/drawManager'
-import 'scripts/scenes/game/particleManager'
-import 'scripts/scenes/game/uiManager'
-import 'scripts/scenes/game/cards/properties/projectileManager'
+import 'scripts/scenes/game/managers/timerManager'
+import 'scripts/scenes/game/managers/drawManager'
+import 'scripts/scenes/game/managers/particleManager'
+import 'scripts/scenes/game/managers/uiManager'
+import 'scripts/scenes/game/managers/projectileManager'
 import 'scripts/scenes/game/cards/properties/projectileCard'
 import 'scripts/scenes/game/cards/properties/repeatedProjectileCard'
 import 'scripts/scenes/game/cards/properties/beamCard'
 import 'scripts/scenes/game/cards/properties/aoeCard'
-import 'scripts/scenes/game/cards/aimManager'
+import 'scripts/scenes/game/managers/aimManager'
 
 import 'scripts/data/cards'
 
@@ -42,9 +42,13 @@ import 'scripts/scenes/game/cards/deck'
 
 -- Game
 import 'scripts/scenes/game/player'
-import 'scripts/scenes/game/enemyManager'
+import 'scripts/scenes/game/managers/enemyManager'
 import 'scripts/scenes/game/enemies/slime'
 import 'scripts/scenes/game/enemies/blight'
+import 'scripts/scenes/game/enemies/gargoyle'
+import 'scripts/scenes/game/enemies/cerberus'
+import 'scripts/scenes/game/enemies/phoenix'
+import 'scripts/scenes/game/enemies/kraken'
 import 'scripts/scenes/game/gameScene'
 import 'scripts/scenes/title/titleScene'
 

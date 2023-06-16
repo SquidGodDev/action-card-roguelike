@@ -36,8 +36,8 @@ local uiManager = UIManager
 local uiUpdate = uiManager.update
 local drawManager = DrawManager
 local drawUpdate = drawManager.update
-local gameTimer = GameTimer
-local gameTimerUpdate = gameTimer.update
+local timerManager = TimerManager
+local timerManagerUpdate = timerManager.update
 
 local hand
 local STATES <const> = {
@@ -120,18 +120,18 @@ function GameScene.init()
     local health = maxHealth
     player.init(health, maxHealth)
     state = STATES.moving
-    projectileManager.init()
+    projectileManager.init(player)
     aimManager = AimManager(player)
     particleManager.init()
     drawManager.init()
-    gameTimer.init()
+    timerManager.init()
 
     -- Enemies
     enemyManager.init(player)
 
     -- Spawn all at once
-    local enemyList = {Slime, Blight}
-    local enemyCount = 30
+    local enemyList = {Gargoyle, Cerberus, Phoenix}
+    local enemyCount = 10
     for _=1, enemyCount do
         enemyManager.spawnEnemy(enemyList[math.random(#enemyList)], math.random(minX + 10, maxX - 10), math.random(minY + 10, maxY - 10))
     end
@@ -180,7 +180,7 @@ function GameScene.update()
         local deltaTime <const> = dt * deltaTimeMultiplier
 
         -- Update timers
-        gameTimerUpdate(deltaTime)
+        timerManagerUpdate(deltaTime)
 
         -- Update enemies
         enemyUpdate(deltaTime)
@@ -215,7 +215,7 @@ function GameScene.update()
         local deltaTime <const> = dt * deltaTimeMultiplier
 
         -- Update timers
-        gameTimerUpdate(deltaTime)
+        timerManagerUpdate(deltaTime)
 
         -- Update enemies
         enemyUpdate(deltaTime)
@@ -248,7 +248,7 @@ function GameScene.update()
         local deltaTime <const> = dt * deltaTimeMultiplier
 
         -- Update timers
-        gameTimerUpdate(deltaTime)
+        timerManagerUpdate(deltaTime)
 
         -- Update enemies
         enemyUpdate(deltaTime)

@@ -1,4 +1,4 @@
-GameTimer = {}
+TimerManager = {}
 
 local maxTimerCount <const> = 50
 local queue <const> = Queue
@@ -8,7 +8,7 @@ local activeIndexes = nil
 local timer <const> = table.create(maxTimerCount, 0)
 local callback <const> = table.create(maxTimerCount, 0)
 
-function GameTimer.init()
+function TimerManager.init()
     availableIndexes = queue.new(maxTimerCount)
     for i=1, maxTimerCount do
         queue.push(availableIndexes, i)
@@ -17,7 +17,7 @@ function GameTimer.init()
 end
 
 
-function GameTimer.update(dt)
+function TimerManager.update(dt)
     for i=#activeIndexes, 1, -1 do
         local timerIndex <const> = activeIndexes[i]
 
@@ -36,7 +36,7 @@ function GameTimer.update(dt)
     end
 end
 
-function GameTimer.addTimer(time, callbackFunction)
+function TimerManager.addTimer(time, callbackFunction)
     if #activeIndexes >= maxTimerCount then
         return
     end

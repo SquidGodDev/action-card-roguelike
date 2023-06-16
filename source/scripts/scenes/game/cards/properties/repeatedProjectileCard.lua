@@ -7,8 +7,8 @@ local random = math.random
 local projectileManager = ProjectileManager
 local createProjectile = projectileManager.createProjectile
 
-local gameTimer = GameTimer
-local addTimer = gameTimer.addTimer
+local timerManager = TimerManager
+local addTimer = timerManager.addTimer
 
 RepeatedProjectileCard = {}
 

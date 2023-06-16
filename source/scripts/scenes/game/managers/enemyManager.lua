@@ -2,7 +2,6 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 local ringInt = math.ringInt
-local clamp = math.clamp
 local floor = math.floor
 
 local drawImagetable = gfx.imagetable.drawImage
