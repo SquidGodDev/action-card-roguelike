@@ -96,6 +96,8 @@ function EnemyManager.update(dt)
     local playerBottomRightY = playerTopLeftY + playerHeight
     for i=1, #activeIndexes do
         local enemyIndex <const> = activeIndexes[i]
+
+        -- Call enemy movement function
         local moveTime = enemyMoveTime[enemyIndex]
         moveTime -= dt
         if moveTime <= 0 then
@@ -104,6 +106,7 @@ function EnemyManager.update(dt)
             enemyMoveTime[enemyIndex] = moveTime
         end
 
+        -- Call enemy attack function
         local attackFunction = enemyAttackFunction[enemyIndex]
         if attackFunction then
             local attackTime = enemyAttackTime[enemyIndex]
@@ -115,14 +118,27 @@ function EnemyManager.update(dt)
             end
         end
 
+        -- Check wall collision
+        local width, height = enemyWidth[enemyIndex], enemyHeight[enemyIndex]
         local x = enemyX[enemyIndex] + enemySpeedX[enemyIndex] * dt
-        if x < minX then x = minX elseif x > maxX then x = maxX end
         local y = enemyY[enemyIndex] + enemySpeedY[enemyIndex] * dt
-        if y < minY then y = minY elseif y > maxY then y = maxY end
+
+        if x < minX then
+            x = minX
+        elseif x > maxX - width then
+            x = maxX - width
+        end
+
+        if y < minY then
+            y = minY
+        elseif y > maxY - height then
+            y = maxY - height
+        end
 
         enemyX[enemyIndex] = x
         enemyY[enemyIndex] = y
 
+        -- Check player collision
         local collisionTime = enemyCollisionTimer[enemyIndex]
         if collisionTime > 0 then
             collisionTime -= dt
@@ -136,6 +152,7 @@ function EnemyManager.update(dt)
             end
         end
 
+        -- Draw enemy image
         local imagetable = enemyImagetable[enemyIndex]
         local frameTimeCounter = enemyFrameTimeCounter[enemyIndex]
         frameTimeCounter += dt
