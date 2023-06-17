@@ -56,6 +56,12 @@ local dashFadeImagetable = gfx.imagetable.new('assets/images/player/playerFade')
 local dashFadeImagetableFlipped = gfx.imagetable.new('assets/images/player/playerFadeFlipped')
 local dashFadeFrameTime = 0.05
 
+local fullWidth <const>, fullHeight <const> = idleImagetable[1]:getSize()
+local halfWidth <const>, halfHeight <const> = fullWidth/2, fullHeight/2
+
+player.width, player.height = 14, 24
+player.widthOffset, player.heightOffset = player.width/2, 4
+
 local uiManager <const> = UIManager
 
 local drawManager = DrawManager
@@ -91,9 +97,6 @@ local maxHealth
 local enemyManager
 local gameScene
 local minX, minY, maxX, maxY
-
-player.width, player.height = 14, 24
-player.widthOffset, player.heightOffset = player.width/2, 4
 
 local function setActiveImagetable(imagetable, _frameTime)
     playerImagetable = imagetable
@@ -299,8 +302,8 @@ function Player.update(dt, onlyDraw)
             y += yVelocity
         end
 
-        x = clamp(x, minX, maxX)
-        y = clamp(y, minY, maxY)
+        x = clamp(x, minX + halfWidth, maxX - halfWidth)
+        y = clamp(y, minY, maxY - halfHeight)
 
         local lerp = 0.1
         cameraXOffset += (x - cameraXOffset - 200) * lerp
