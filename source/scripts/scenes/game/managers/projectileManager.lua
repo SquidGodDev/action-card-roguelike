@@ -1,6 +1,11 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+local fillCircleInRect <const> = gfx.fillCircleInRect
+local setColor <const> = gfx.setColor
+local kColorBlack <const> = gfx.kColorBlack
+local kColorWhite <const> = gfx.kColorWhite
+
 ProjectileManager = {}
 
 local enemyX
@@ -15,7 +20,6 @@ local damagePlayer
 local playerWidthOffset, playerHeightOffset
 local playerWidth, playerHeight
 local playerTLX, playerTLY, playerBRX, playerBRY
-
 
 local minX, maxX, minY, maxY
 
@@ -94,12 +98,15 @@ function ProjectileManager.update(dt, onlyDraw)
             local y = projectileY[projectileIndex]
             local diameter = projectileDiameter[projectileIndex]
             if projectileIsPlayer[projectileIndex] then
-                gfx.setColor(gfx.kColorBlack)
-                gfx.fillCircleInRect(x, y, diameter, diameter)
-                gfx.setColor(gfx.kColorWhite)
-                gfx.fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
+                setColor(kColorBlack)
+                fillCircleInRect(x, y, diameter, diameter)
+                setColor(kColorWhite)
+                fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
             else
-
+                setColor(kColorBlack)
+                fillCircleInRect(x, y, diameter, diameter)
+                setColor(kColorWhite)
+                fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
             end
         end
     else
@@ -128,27 +135,30 @@ function ProjectileManager.update(dt, onlyDraw)
                 local damage = projectileDamage[projectileIndex]
                 local collided = false
                 if projectileIsPlayer[projectileIndex] then
+                    -- Handle collision with enemy
                     for j=#enemyIndexes, 1, -1 do
                         local enemyIndex = enemyIndexes[j]
                         if overlapsEnemy(pTLX, pTLY, pBRX, pBRY, enemyIndex) then
-                            damageEnemy(enemyIndex, damage)
-                            collided = true
+                            if damageEnemy(enemyIndex, damage) then
+                                collided = true
+                            end
                         end
                     end
-                    gfx.setColor(gfx.kColorWhite)
-                    gfx.fillCircleInRect(x, y, diameter, diameter)
-                    gfx.setColor(gfx.kColorBlack)
-                    gfx.fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
+                    setColor(kColorWhite)
+                    fillCircleInRect(x, y, diameter, diameter)
+                    setColor(kColorBlack)
+                    fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
                 else
                     -- Handle collision with player
                     if overlapsPlayer(pTLX, pTLY, pBRX, pBRY) then
-                        damagePlayer(damage)
-                        collided = true
+                        if damagePlayer(damage) then
+                            collided = true
+                        end
                     end
-                    gfx.setColor(gfx.kColorBlack)
-                    gfx.fillCircleInRect(x, y, diameter, diameter)
-                    gfx.setColor(gfx.kColorWhite)
-                    gfx.fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
+                    setColor(kColorBlack)
+                    fillCircleInRect(x, y, diameter, diameter)
+                    setColor(kColorWhite)
+                    fillCircleInRect(x + 2, y + 2, diameter - 4, diameter - 4)
                 end
                 if collided then
                     table.remove(activeIndexes, i)

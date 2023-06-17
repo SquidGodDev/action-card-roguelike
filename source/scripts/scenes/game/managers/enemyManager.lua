@@ -175,10 +175,11 @@ function EnemyManager.damageEnemy(enemyIndex, damage)
         enemyManager.removeEnemy(enemyIndex)
         local x, y = enemyX[enemyIndex] + enemyWidth[enemyIndex]/2, enemyY[enemyIndex] + enemyHeight[enemyIndex]/2
         particleManager.addParticle(x, y, deathParticlesImageTable, deathParticlesFrameTime)
-        return
+        return true
     end
     flashTimer[enemyIndex] = maxFlashTime
     enemyHealth[enemyIndex] = health
+    return true
 end
 
 local damageEnemy = enemyManager.damageEnemy

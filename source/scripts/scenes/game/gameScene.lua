@@ -73,8 +73,8 @@ local walls = {
     bottomWallSprite
 }
 
-local minX, maxX = -200, 600
-local minY, maxY = -120, 360
+local minX, maxX = -100, 500
+local minY, maxY = -60, 300
 local setLineWidth = gfx.setLineWidth
 local drawLine = gfx.drawLine
 
