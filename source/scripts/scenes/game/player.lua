@@ -7,6 +7,9 @@ local clamp <const> = math.clamp
 local floor <const> = math.floor
 local sqrt <const> = math.sqrt
 
+local drawAnchored <const> = gfx.image.drawAnchored
+local setDrawOffset <const> = gfx.setDrawOffset
+
 local drawModeCopy <const> = gfx.kDrawModeCopy
 local drawModeFillWhite <const> = gfx.kDrawModeFillWhite
 local setDrawMode <const> = gfx.setImageDrawMode
@@ -122,7 +125,6 @@ local function switchToDash()
 end
 
 function Player.init(_health, _maxHealth)
-    player.x, player.y = 200, 120
     player.type = TYPES.player
 
     health = _health
@@ -139,6 +141,12 @@ function Player.init(_health, _maxHealth)
     gameScene = GameScene
     minX, maxX = gameScene.minX, gameScene.maxX
     minY, maxY = gameScene.minY, gameScene.maxY
+
+    player.moveToEntrance()
+end
+
+function Player.moveToEntrance()
+    player.x, player.y = 200, maxY - 20
 end
 
 function Player.getHealth()
@@ -308,14 +316,14 @@ function Player.update(dt, onlyDraw)
         local lerp = 0.1
         cameraXOffset += (x - cameraXOffset - 200) * lerp
         cameraYOffset += (y - cameraYOffset - 120) * lerp
-        gfx.setDrawOffset(-cameraXOffset,-cameraYOffset)
+        setDrawOffset(-cameraXOffset,-cameraYOffset)
         player.x, player.y = x, y
     end
     if flashTime > 0 then
         setDrawMode(drawModeFillWhite)
-        playerImage:drawAnchored(x, y, 0.5, 0.5, flip)
+        drawAnchored(playerImage, x, y, 0.5, 0.5, flip)
         setDrawMode(drawModeCopy)
     else
-        playerImage:drawAnchored(x, y, 0.5, 0.5, flip)
+        drawAnchored(playerImage, x, y, 0.5, 0.5, flip)
     end
 end

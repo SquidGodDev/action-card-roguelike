@@ -38,12 +38,14 @@ local drawManager = DrawManager
 local drawUpdate = drawManager.update
 local timerManager = TimerManager
 local timerManagerUpdate = timerManager.update
+local levelManager
 
 local hand
 local STATES <const> = {
     moving = 1,
     selecting = 2,
-    aiming = 3
+    aiming = 3,
+    transitioning = 4
 }
 local state = STATES.moving
 local deltaTimeMultiplier = 1
@@ -129,22 +131,11 @@ function GameScene.init()
     -- Enemies
     enemyManager.init(player)
 
+    -- Level
+    levelManager = LevelManager(1, gameScene, enemyManager)
+
     -- Spawn all at once
-    local enemyList = {Gargoyle, Cerberus, Phoenix}
-    local enemyCount = 10
-    for _=1, enemyCount do
-        enemyManager.spawnEnemy(enemyList[math.random(#enemyList)], math.random(minX + 10, maxX - 10), math.random(minY + 10, maxY - 10))
-    end
-    -- Spawn Timer
-    -- local enemyCount = 0
-    -- local spawnTimer = pd.timer.new(500, function(timer)
-    --     enemyManager.spawnEnemy(Slime, math.random(minSpawnX, maxSpawnX), math.random(minSpawnY, maxSpawnY))
-    --     enemyCount += 1
-    --     if enemyCount >= 30 then
-    --         timer:remove()
-    --     end
-    -- end)
-    -- spawnTimer.repeats = true
+    levelManager:spawnRoomEnemies()
 
     -- Deck
     -- ===== Temp values =====
@@ -169,11 +160,14 @@ function GameScene.update()
 	previous_time = current_time
 
     -- Draw walls
-    setLineWidth(4)
-    drawLine(minX, minY, minX, maxY) -- Left wall
-    drawLine(maxX, minY, maxX, maxY) -- Right wall
-    drawLine(minX, minY, maxX, minY) -- Top wall
-    drawLine(minX, maxY, maxX, maxY) -- Bottom wall
+    gfx.pushContext()
+        setLineWidth(4)
+        gfx.setColor(gfx.kColorWhite)
+        drawLine(minX, minY, minX, maxY) -- Left wall
+        drawLine(maxX, minY, maxX, maxY) -- Right wall
+        drawLine(minX, minY, maxX, minY) -- Top wall
+        drawLine(minX, maxY, maxX, maxY) -- Bottom wall
+    gfx.popContext()
 
     if state == STATES.moving then
         deltaTimeMultiplier = lerp(deltaTimeMultiplier, 1, timeLerpRate)
@@ -277,9 +271,105 @@ function GameScene.update()
         elseif pd.buttonJustPressed(pd.kButtonB) then
             gameScene.revealHand()
         end
+    elseif state == STATES.transitioning then
+        deltaTimeMultiplier = lerp(deltaTimeMultiplier, 1, timeLerpRate)
+        local deltaTime <const> = dt * deltaTimeMultiplier
+
+        -- Update timers
+        timerManagerUpdate(deltaTime)
+
+        -- Update enemies
+        enemyUpdate(deltaTime)
+
+        -- Update draw
+        drawUpdate(deltaTime)
+
+        -- Update particles
+        particleUpdate(deltaTime)
+
+        -- Update player
+        playerUpdate(deltaTime)
+
+        -- Update projectiles
+        projectileUpdate(deltaTime)
+
+        -- Update UI
+        uiUpdate(deltaTime, true)
+
+        -- Update hand
+        hand:update(deltaTime, false)
     end
 end
 
+-- Room transition
+function GameScene.loadNewRoom()
+    state = STATES.transitioning
+    timerManager.init()
+
+    local roomTransitionImagetable = gfx.imagetable.new('assets/images/ui/roomTransition')
+    local roomTransitionAnimation = gfx.animation.loop.new(200, roomTransitionImagetable, true)
+    local _, roomTransitionHeight = roomTransitionImagetable[1]:getSize()
+
+    local levelRoomText = levelManager.level .. " - " .. levelManager.room
+    local levelRoomTextImage = gfx.imageWithText(levelRoomText, 400, 240):invertedImage()
+
+    local transitionImageX, transitionImageY = 200, 120 - roomTransitionHeight
+    local transitionImageEndY = 120 + roomTransitionHeight + 40
+    local textImageX, textImageY = 200, -50
+    local textImageEndY = 290
+
+    local delayTime = 1000
+    local entranceTime, exitTime = 1000, 700
+    local textEntranceTime, textExitTime = 700, 500
+    local totalTime = 500 + delayTime + entranceTime + exitTime + textEntranceTime + textExitTime
+    local drawTimer = pd.timer.new(totalTime)
+    drawTimer.updateCallback = function()
+        local offsetX, offsetY = gfx.getDrawOffset()
+        local transitionImage = roomTransitionAnimation:image()
+        transitionImage:drawAnchored(transitionImageX - offsetX, transitionImageY - offsetY, 0.5, 0.5)
+        levelRoomTextImage:drawAnchored(textImageX - offsetX, textImageY - offsetY, 0.5, 0.5)
+    end
+
+    pd.timer.performAfterDelay(delayTime, function()
+        local entranceTimer = pd.timer.new(entranceTime, transitionImageY, 120, pd.easingFunctions.outCubic)
+        entranceTimer.updateCallback = function(timer)
+            transitionImageY = timer.value
+        end
+        entranceTimer.timerEndedCallback = function()
+            player.moveToEntrance()
+            local textEntranceTimer = pd.timer.new(textEntranceTime, textImageY, 120, pd.easingFunctions.outCubic)
+            textEntranceTimer.updateCallback = function(timer)
+                textImageY = timer.value
+            end
+            textEntranceTimer.timerEndedCallback = function()
+                local textExitTimer = pd.timer.new(textExitTime, textImageY, textImageEndY, pd.easingFunctions.inCubic)
+                textExitTimer.updateCallback = function(timer)
+                    textImageY = timer.value
+                end
+                textExitTimer.timerEndedCallback = function()
+                    -- Reset spell cooldowns
+                    hand:resetCooldowns()
+                    local exitTimer = pd.timer.new(exitTime, transitionImageY, transitionImageEndY, pd.easingFunctions.inCubic)
+                    exitTimer.updateCallback = function(timer)
+                        transitionImageY = timer.value
+                    end
+                    exitTimer.timerEndedCallback = function(timer)
+                        state = STATES.moving
+                        transitionImageY = timer.value
+                        levelManager:spawnRoomEnemies()
+                    end
+                end
+            end
+        end
+    end)
+end
+
+function GameScene.exitLevel()
+    state = STATES.transitioning
+    -- Transition out with sceneManager
+end
+
+-- Game state transitions
 function GameScene.switchToAiming()
    state = STATES.aiming
    aimManager:activate()

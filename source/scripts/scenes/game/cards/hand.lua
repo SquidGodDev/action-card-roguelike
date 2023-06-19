@@ -190,6 +190,13 @@ function Hand:addCard(card)
     end
 end
 
+function Hand:resetCooldowns()
+    for i=1, #self.cards do
+        local card = self.cards[i]
+        card:resetCooldown()
+    end
+end
+
 function Hand:activateHand()
     if self.active then
         return

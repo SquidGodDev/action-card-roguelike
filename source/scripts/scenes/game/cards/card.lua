@@ -73,6 +73,10 @@ function Card:isOnCooldown()
     return self.curCooldown > 0
 end
 
+function Card:resetCooldown()
+    self.curCooldown = 0
+end
+
 function Card:isAimable()
     return self.aimable
 end

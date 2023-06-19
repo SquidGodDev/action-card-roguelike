@@ -16,7 +16,6 @@ function TimerManager.init()
     activeIndexes = table.create(maxTimerCount, 0)
 end
 
-
 function TimerManager.update(dt)
     for i=#activeIndexes, 1, -1 do
         local timerIndex <const> = activeIndexes[i]

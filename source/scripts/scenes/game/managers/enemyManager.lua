@@ -4,14 +4,29 @@ local gfx <const> = pd.graphics
 local ringInt = math.ringInt
 local floor = math.floor
 
+local function easeOutCubic(t)
+    return 1 - (1 - t) ^ 2
+end
+
+local function easeInCubic(t)
+    return t * t * t;
+end
+
 local drawImagetable = gfx.imagetable.drawImage
 
 EnemyManager = {}
 local enemyManager = EnemyManager
 
 local particleManager = ParticleManager
+local addParticle = particleManager.addParticle
 local deathParticlesImageTable = gfx.imagetable.new('assets/images/particles/enemyDeathParticles')
 local deathParticlesFrameTime = .02
+
+local drawManager = DrawManager
+local addDraw = drawManager.addDraw
+
+local timerManager = TimerManager
+local addTimer = timerManager.addTimer
 
 local maxFlashTime <const> = .15
 local maxCollisionTime <const> = 1
@@ -55,6 +70,8 @@ local player
 local playerWidthOffset, playerHeightOffset
 local playerWidth, playerHeight
 
+local levelManager
+
 local minX, maxX, minY, maxY
 
 local function overlapsPlayer(index, pTLX, pTLY, pBRX, pBRY, topLeftX, topLeftY)
@@ -86,6 +103,10 @@ function EnemyManager.init(_player)
         queue.push(availableIndexes, i)
     end
     activeIndexes = table.create(maxEnemyCount, 0)
+end
+
+function EnemyManager.setLevelManager(_levelManager)
+    levelManager = _levelManager
 end
 
 function EnemyManager.update(dt)
@@ -191,7 +212,10 @@ function EnemyManager.damageEnemy(enemyIndex, damage)
     if health <= 0 then
         enemyManager.removeEnemy(enemyIndex)
         local x, y = enemyX[enemyIndex] + enemyWidth[enemyIndex]/2, enemyY[enemyIndex] + enemyHeight[enemyIndex]/2
-        particleManager.addParticle(x, y, deathParticlesImageTable, deathParticlesFrameTime)
+        addParticle(x, y, deathParticlesImageTable, deathParticlesFrameTime)
+        if levelManager then
+            levelManager:enemyDied()
+        end
         return true
     end
     flashTimer[enemyIndex] = maxFlashTime
@@ -294,6 +318,36 @@ function EnemyManager.spawnEnemy(enemy, x, y)
         return
     end
 
+    local drawTime = 1.0
+    local halfTime = drawTime / 2
+    local width, height = enemy.imagetable[1]:getSize()
+    local centerX, centerY = x + width/2, y + height/2
+    addDraw(drawTime, function(time)
+        local radius = width * 1.5
+        if time <= halfTime then
+            local drawRadius = radius * easeOutCubic(time / halfTime)
+            if drawRadius >= 2 then
+                gfx.setColor(gfx.kColorBlack)
+                gfx.fillCircleAtPoint(centerX, centerY, drawRadius)
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillCircleAtPoint(centerX, centerY, drawRadius - 2)
+            end
+        else
+            local drawRadius = radius - radius * easeInCubic((time - halfTime) / halfTime)
+            if drawRadius >= 2 then
+                gfx.setColor(gfx.kColorBlack)
+                gfx.fillCircleAtPoint(centerX, centerY, drawRadius)
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillCircleAtPoint(centerX, centerY, drawRadius - 2)
+            end
+        end
+    end)
+    addTimer(halfTime, function()
+        enemyManager.initializeEnemy(enemy, x, y)
+    end)
+end
+
+function EnemyManager.initializeEnemy(enemy, x, y)
     local enemyIndex <const> = queue.pop(availableIndexes)
     table.insert(activeIndexes, enemyIndex)
 
@@ -301,12 +355,8 @@ function EnemyManager.spawnEnemy(enemy, x, y)
     enemyX[enemyIndex] = x
     enemyY[enemyIndex] = y
     enemyAttackFunction[enemyIndex] = enemy.attackFunction
-    if enemy.attackFunction then
-        enemy.attackFunction(enemyIndex, player.x, player.y, true)
-    end
     enemyMoveState[enemyIndex] = 0
     enemyMovementFunction[enemyIndex] = enemy.moveFunction
-    enemy.moveFunction(enemyIndex, player.x, player.y)
 
     local imagetable = enemy.imagetable
     enemyImagetable[enemyIndex] = imagetable
@@ -320,4 +370,9 @@ function EnemyManager.spawnEnemy(enemy, x, y)
     enemyCollisionTimer[enemyIndex] = maxCollisionTime
 
     flashTimer[enemyIndex] = 0
+
+    enemy.moveFunction(enemyIndex, player.x, player.y)
+    if enemy.attackFunction then
+        enemy.attackFunction(enemyIndex, player.x, player.y, true)
+    end
 end

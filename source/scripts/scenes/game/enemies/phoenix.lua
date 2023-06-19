@@ -4,6 +4,8 @@ local enemyX <const> = EnemyManager.enemyX
 local enemyY <const> = EnemyManager.enemyY
 local enemySpeedX <const> = EnemyManager.enemySpeedX
 local enemySpeedY <const> = EnemyManager.enemySpeedY
+local enemyWidth <const> = EnemyManager.enemyWidth
+local enemyHeight <const> = EnemyManager.enemyHeight
 local enemyMoveTime <const> = EnemyManager.enemyMoveTime
 local enemyAttackTime <const> = EnemyManager.enemyAttackTime
 local enemyMoveState <const> = EnemyManager.enemyMoveState
@@ -36,13 +38,16 @@ Phoenix = {
 function Phoenix.moveFunction(index, playerX, playerY)
     enemySpeedX[index] = 0
     enemySpeedY[index] = 0
+    local halfWidth, halfHeight = enemyWidth[index], enemyHeight[index]
+    halfWidth /= 2
+    halfHeight /= 2
     local moveState = enemyMoveState[index]
     if moveState == 0 then
         enemyMoveTime[index] = waitTime + random(-50, 50) / 100
         enemyMoveState[index] = 1
     else
-        local x = enemyX[index]
-        local y = enemyY[index]
+        local x = enemyX[index] + halfWidth
+        local y = enemyY[index] + halfHeight
         local xDiff = playerX - x
         local yDiff = playerY - y
         local magnitude = sqrt(xDiff * xDiff + yDiff * yDiff)

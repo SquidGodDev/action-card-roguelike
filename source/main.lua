@@ -14,6 +14,7 @@ import 'CoreLibs/graphics'
 import 'CoreLibs/sprites'
 import 'CoreLibs/timer'
 import 'CoreLibs/crank'
+import 'CoreLibs/animation'
 
 -- Libraries
 import 'scripts/libraries/SceneManager'
@@ -50,6 +51,7 @@ import 'scripts/scenes/game/enemies/cerberus'
 import 'scripts/scenes/game/enemies/phoenix'
 import 'scripts/scenes/game/enemies/kraken'
 import 'scripts/scenes/game/gameScene'
+import 'scripts/scenes/game/managers/levelManager'
 import 'scripts/scenes/title/titleScene'
 
 DRAW_FPS = true
