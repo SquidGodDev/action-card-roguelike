@@ -50,12 +50,12 @@ function setSceneUpdate(scene)
     pd.update = function()
         spriteUpdate()
         sceneUpdate()
-        if transitionImage then
-            transitionImage:drawIgnoringOffset(0, 0)
-        end
         timerUpdate()
         if drawFps then
             pd.drawFPS(0, 228)
+        end
+        if transitionImage then
+            transitionImage:drawIgnoringOffset(0, 0)
         end
     end
 end

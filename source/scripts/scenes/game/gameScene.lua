@@ -23,6 +23,8 @@ end
 -- Libraries
 local sceneManager = SceneManager
 
+local gameData = GameData
+
 local player = Player
 local playerUpdate = player.update
 local enemyManager = EnemyManager
@@ -118,9 +120,7 @@ function GameScene.init()
     shakeTimer.discardOnCompletion = false
 
     -- Game state
-    local maxHealth = 9
-    local health = maxHealth
-    player.init(health, maxHealth)
+    player.init(gameData.playerHealth, gameData.playerMaxHealth)
     state = STATES.moving
     projectileManager.init(player)
     aimManager = AimManager(player)
@@ -132,7 +132,7 @@ function GameScene.init()
     enemyManager.init(player)
 
     -- Level
-    levelManager = LevelManager(1, gameScene, enemyManager)
+    levelManager = LevelManager(gameScene, enemyManager)
 
     -- Spawn all at once
     levelManager:spawnRoomEnemies()
@@ -310,7 +310,7 @@ function GameScene.loadNewRoom()
     local roomTransitionAnimation = gfx.animation.loop.new(200, roomTransitionImagetable, true)
     local _, roomTransitionHeight = roomTransitionImagetable[1]:getSize()
 
-    local levelRoomText = levelManager.level .. " - " .. levelManager.room
+    local levelRoomText = levelManager.level .. ' - ' .. levelManager.room
     local levelRoomTextImage = gfx.imageWithText(levelRoomText, 400, 240):invertedImage()
 
     local transitionImageX, transitionImageY = 200, 120 - roomTransitionHeight
@@ -365,8 +365,17 @@ function GameScene.loadNewRoom()
 end
 
 function GameScene.exitLevel()
+    if player.died then
+        return
+    end
     state = STATES.transitioning
-    -- Transition out with sceneManager
+    player.storeHealth()
+    SceneManager.switchScene(LevelScene)
+end
+
+function GameScene.playedDied()
+    state = STATES.transitioning
+    SceneManager.switchScene(TitleScene)
 end
 
 -- Game state transitions

@@ -126,6 +126,7 @@ end
 
 function Player.init(_health, _maxHealth)
     player.type = TYPES.player
+    player.died = false
 
     health = _health
     maxHealth = _maxHealth
@@ -143,6 +144,10 @@ function Player.init(_health, _maxHealth)
     minY, maxY = gameScene.minY, gameScene.maxY
 
     player.moveToEntrance()
+end
+
+function Player.storeHealth()
+    GameData.playerHealth = health
 end
 
 function Player.moveToEntrance()
@@ -165,7 +170,9 @@ function Player.damage(amount)
     health -= amount
     if health <= 0 then
         health = 0
-        player.die()
+        if not player.died then
+            player.die()
+        end
     end
     flashTime = maxFlashTime
     gameScene.screenShake()
@@ -175,6 +182,8 @@ end
 
 function Player.die()
     -- Die
+    player.died = true
+    gameScene.playerDied()
 end
 
 function Player.basicAttack()

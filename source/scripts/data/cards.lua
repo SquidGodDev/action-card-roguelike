@@ -73,9 +73,23 @@ CARDS = {
     }
 }
 
+local cardBase <const> = gfx.imagetable.new('assets/images/cards/cardBase')
+local function createCardImagetable(imagetablePath)
+    local spellImagetable = gfx.imagetable.new(imagetablePath)
+    local imagetableCount = #spellImagetable
+    local cardImagetable = gfx.imagetable.new(imagetableCount)
+    for i=1,#spellImagetable do
+        local cardImage = cardBase[i]:copy()
+        gfx.pushContext(cardImage)
+            spellImagetable[i]:draw(15, 24)
+        gfx.popContext()
+        cardImagetable:setImage(i, cardImage)
+    end
+    return cardImagetable
+end
+
 for spell, spellData in pairs(CARDS) do
     local imagePath = spellData.imagePath
-    spellData.imagetable = gfx.imagetable.new(imagePath)
-
+    spellData.imagetable = createCardImagetable(imagePath)
     spellData.name = spell
 end

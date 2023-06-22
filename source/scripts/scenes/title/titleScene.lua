@@ -6,15 +6,15 @@ local sceneManager = SceneManager
 TitleScene = {}
 
 function TitleScene.init()
-    gfx.sprite.setBackgroundDrawingCallback(function()
-        gfx.setColor(gfx.kColorBlack)
-        gfx.fillRect(0, 0, 400, 240)
-    end)
+    gfx.setBackgroundColor(gfx.kColorBlack)
+    local blackImage = gfx.image.new(400, 240, gfx.kColorBlack)
+    blackImage:draw(0, 0)
 end
 
 function TitleScene.update()
     if pd.buttonJustPressed(pd.kButtonA) then
-        sceneManager.switchScene(GameScene)
+        GameData.reset()
+        sceneManager.switchScene(LevelScene)
     end
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
     gfx.drawTextAligned('Title Scene', 200, 120, kTextAlignment.center)

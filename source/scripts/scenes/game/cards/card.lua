@@ -1,8 +1,6 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local cardBase <const> = gfx.imagetable.new('assets/images/cards/cardBase')
-
 class('Card').extends()
 
 function Card:init(x, y, data)
@@ -14,7 +12,7 @@ function Card:init(x, y, data)
     self.data = data
 
     -- Drawing
-    self.imagetable = self:createCardImagetable(data)
+    self.imagetable = data.imagetable
     self.x, self.y = x, y
     local cardWidth, cardHeight = self.imagetable[1]:getSize()
     self.timerYOffset = 15
@@ -83,18 +81,4 @@ end
 
 function Card:moveTo(x, y)
     self.x, self.y = x, y
-end
-
-function Card:createCardImagetable(data)
-    local spellImagetable = data.imagetable
-    local imagetableCount = #spellImagetable
-    local cardImagetable = gfx.imagetable.new(imagetableCount)
-    for i=1,#spellImagetable do
-        local cardImage = cardBase[i]:copy()
-        gfx.pushContext(cardImage)
-            spellImagetable[i]:draw(15, 24)
-        gfx.popContext()
-        cardImagetable:setImage(i, cardImage)
-    end
-    return cardImagetable
 end

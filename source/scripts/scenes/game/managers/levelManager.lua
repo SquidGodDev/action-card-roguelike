@@ -1,11 +1,14 @@
+local gameData = GameData
+
 class('LevelManager').extends()
 
-function LevelManager:init(level, gameScene, enemyManager)
+function LevelManager:init(gameScene, enemyManager)
     self.gameScene = gameScene
     self.enemyManager = enemyManager
     enemyManager.setLevelManager(self)
     self.room = 1
-    self.level = level
+    self.level = gameData.level
+    self.maxRoom = 5
 end
 
 function LevelManager:enemyDied()
@@ -17,7 +20,7 @@ end
 
 function LevelManager:enterNewRoom()
     self.room += 1
-    if self.room > 10 then
+    if self.room > self.maxRoom then
         self.gameScene.exitLevel()
     else
         self.gameScene.loadNewRoom()

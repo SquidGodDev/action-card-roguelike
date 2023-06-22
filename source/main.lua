@@ -21,7 +21,8 @@ import 'scripts/libraries/SceneManager'
 import 'scripts/libraries/Utilities'
 
 -- Globals
-import 'scripts/constants'
+import 'scripts/data/constants'
+import 'scripts/data/gameData'
 
 -- Cards
 import 'scripts/scenes/game/managers/timerManager'
@@ -54,6 +55,13 @@ import 'scripts/scenes/game/gameScene'
 import 'scripts/scenes/game/managers/levelManager'
 import 'scripts/scenes/title/titleScene'
 
+-- Level
+import 'scripts/scenes/level/cardSelection'
+import 'scripts/scenes/level/levelScene'
+import 'scripts/scenes/level/campfire/campfireScene'
+import 'scripts/scenes/level/chest/chestScene'
+import 'scripts/scenes/level/market/marketScene'
+
 DRAW_FPS = true
 
-SceneManager.startingScene(GameScene)
+SceneManager.startingScene(TitleScene)
