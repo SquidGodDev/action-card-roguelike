@@ -145,9 +145,7 @@ function GameScene.init()
     hand = Hand(deck, gameScene, player, maxMana)
 
     -- UI
-    local drawTime = 6
-    local manaTime = 1
-    uiManager.init(player, hand, drawTime, manaTime)
+    uiManager.init(player)
 end
 
 function GameScene.update()
@@ -192,7 +190,7 @@ function GameScene.update()
         projectileUpdate(deltaTime)
 
         -- Update UI
-        uiUpdate(deltaTime, true)
+        uiUpdate()
 
         -- Update hand
         hand:update(deltaTime, true)
@@ -227,7 +225,7 @@ function GameScene.update()
         projectileUpdate(deltaTime)
 
         -- Update UI
-        uiUpdate(deltaTime, false)
+        uiUpdate()
 
         local crankTicks = pd.getCrankTicks(8)
         if      pd.buttonJustPressed(pd.kButtonLeft) or crankTicks == -1 then hand:selectCardLeft()
@@ -294,7 +292,7 @@ function GameScene.update()
         projectileUpdate(deltaTime)
 
         -- Update UI
-        uiUpdate(deltaTime, true)
+        uiUpdate()
 
         -- Update hand
         hand:update(deltaTime, false)

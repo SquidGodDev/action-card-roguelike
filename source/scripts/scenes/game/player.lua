@@ -21,23 +21,6 @@ local rightButton <const> = pd.kButtonRight
 local upButton <const> = pd.kButtonUp
 local downButton <const> = pd.kButtonDown
 
-local basicAttackImage = {
-    [-1] = {
-        [-1] = gfx.imagetable.new('assets/images/player/sword/swingUpLeft'),
-        [0] = gfx.imagetable.new('assets/images/player/sword/swingLeft'),
-        [1] = gfx.imagetable.new('assets/images/player/sword/swingDownLeft')
-    },
-    [0] = {
-        [-1] = gfx.imagetable.new('assets/images/player/sword/swingUp'),
-        [1] = gfx.imagetable.new('assets/images/player/sword/swingDown')
-    },
-    [1] = {
-        [-1] = gfx.imagetable.new('assets/images/player/sword/swingUpRight'),
-        [0] = gfx.imagetable.new('assets/images/player/sword/swingRight'),
-        [1] = gfx.imagetable.new('assets/images/player/sword/swingDownRight')
-    },
-}
-
 Player = {}
 local player = Player
 
@@ -184,29 +167,6 @@ function Player.die()
     -- Die
     player.died = true
     gameScene.playerDied()
-end
-
-function Player.basicAttack()
-    local damage = 1
-    local distance = 40
-    local size = 90
-    local magnitude = sqrt(lastDirX^2 + lastDirY^2)
-    local xDist = distance * lastDirX / magnitude
-    local yDist = distance * lastDirY / magnitude
-    enemyManager.damageEnemyInRectCentered(damage, player.x + xDist, player.y + yDist, size, size)
-
-    local attackImage = basicAttackImage[lastDirX][lastDirY]
-    if attackImage then
-        local maxFrame = #attackImage
-        local animationTime = 0.5
-        addDraw(animationTime, function(time)
-            local frame = floor((maxFrame - 1) * (1 - time / animationTime) + 1)
-            if frame <= maxFrame then
-                attackImage[frame]:drawAnchored(player.x + xDist, player.y + yDist, 0.5, 0.5)
-            end
-        end)
-        -- addParticle(x, y, attackImage, 0.0167)
-    end
 end
 
 function Player.dash()
