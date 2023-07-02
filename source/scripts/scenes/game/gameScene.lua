@@ -140,7 +140,7 @@ function GameScene.init()
     -- Deck
     -- ===== Temp values =====
     -- =======================
-    local deck = {CARDS.lightningStrike, CARDS.zap, CARDS.flamethrower}
+    local deck = {CARDS.detonate}
     local maxMana = 5
     hand = Hand(deck, gameScene, player, maxMana)
 

@@ -10,10 +10,10 @@ CARDS = {
         cast = ProjectileCard.cast,
         stats = {
             aimable = true,
-            cooldown = 1,
+            cooldown = 2,
             speed = 5 * refreshRate,
-            diameter = 12,
-            damage = 2
+            diameter = 24,
+            damage = 5
         }
     },
     flamethrower = {
@@ -31,13 +31,34 @@ CARDS = {
             spread = 30
         }
     },
-    stoneWall = {
-        imagePath = 'assets/images/cards/stoneWall',
+    blast = {
+        imagePath = 'assets/images/cards/blast',
         sfx = '',
+        cast = RepeatedProjectileCard.cast,
         stats = {
-            aimable = false,
-            cooldown = 1,
-            shield = 3
+            aimable = true,
+            cooldown = 3,
+            speed = 5 * refreshRate,
+            diameter = 12,
+            damage = 2,
+            count = 7,
+            interval = 0,
+            spread = 40
+        }
+    },
+    multi = {
+        imagePath = 'assets/images/cards/multi',
+        sfx = '',
+        cast = RepeatedProjectileCard.cast,
+        stats = {
+            aimable = true,
+            cooldown = 2,
+            speed = 5 * refreshRate,
+            diameter = 12,
+            damage = 2,
+            count = 7,
+            interval = 0.2,
+            spread = 0
         }
     },
     zap = {
@@ -62,13 +83,58 @@ CARDS = {
             radius = 60
         }
     },
-    investigate = {
-        imagePath = 'assets/images/cards/investigate',
+    hurricane = {
+        imagePath = 'assets/images/cards/hurricane',
         sfx = '',
+        cast = DamageZoneCard.cast,
         stats = {
             aimable = false,
-            cooldown = 1,
-            drawCount = 2
+            cooldown = 7,
+            damage = 0.5,
+            radius = 60,
+            time = 4,
+            interval = 0.3
+        }
+    },
+    poison = {
+        imagePath = 'assets/images/cards/poison',
+        sfx = '',
+        cast = FollowZoneCard.cast,
+        stats = {
+            aimable = false,
+            cooldown = 7,
+            damage = 0.5,
+            radius = 60,
+            time = 4,
+            interval = 0.3
+        }
+    },
+    storm = {
+        imagePath = 'assets/images/cards/storm',
+        sfx = '',
+        cast = RandomStrikeCard.cast,
+        stats = {
+            aimable = false,
+            cooldown = 5,
+            damage = 2,
+            radius = 10,
+            count = 30,
+            maxDistance = 100,
+            interval = 0.1
+        }
+    },
+    detonate = {
+        imagePath = 'assets/images/cards/detonate',
+        sfx = '',
+        cast = RowExplosionCard.cast,
+        stats = {
+            aimable = true,
+            cooldown = 5,
+            damage = 2,
+            radius = 20,
+            count = 8,
+            interval = 0.5,
+            distance = 20
         }
     }
 }

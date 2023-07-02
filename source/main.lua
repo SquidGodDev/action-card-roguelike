@@ -30,11 +30,17 @@ import 'scripts/scenes/game/managers/drawManager'
 import 'scripts/scenes/game/managers/particleManager'
 import 'scripts/scenes/game/managers/uiManager'
 import 'scripts/scenes/game/managers/projectileManager'
+import 'scripts/scenes/game/managers/aimManager'
+
+-- Card properties
 import 'scripts/scenes/game/cards/properties/projectileCard'
 import 'scripts/scenes/game/cards/properties/repeatedProjectileCard'
 import 'scripts/scenes/game/cards/properties/beamCard'
 import 'scripts/scenes/game/cards/properties/aoeCard'
-import 'scripts/scenes/game/managers/aimManager'
+import 'scripts/scenes/game/cards/properties/damageZoneCard'
+import 'scripts/scenes/game/cards/properties/followZoneCard'
+import 'scripts/scenes/game/cards/properties/randomStrikeCard'
+import 'scripts/scenes/game/cards/properties/rowExplosionCard'
 
 import 'scripts/data/cards'
 

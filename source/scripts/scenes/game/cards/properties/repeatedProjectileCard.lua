@@ -3,6 +3,7 @@ local cos = math.cos
 local sin = math.sin
 
 local random = math.random
+local floor = math.floor
 
 local projectileManager = ProjectileManager
 local createProjectile = projectileManager.createProjectile
@@ -33,7 +34,7 @@ function RepeatedProjectileCard.cast(x, y, angle, data, player)
     for i=1, count do
         local time = i * interval
         addTimer(time, function()
-            angleInRad = rad(random(math.floor(angle - spread + 0.5), math.floor(angle + spread + 0.5)))
+            angleInRad = rad(random(floor(angle - spread + 0.5), floor(angle + spread + 0.5)))
             xSpeed = cos(angleInRad) * speed
             ySpeed = sin(angleInRad) * speed
             createProjectile(player.x, player.y, xSpeed, ySpeed, diameter, damage, isPlayer)

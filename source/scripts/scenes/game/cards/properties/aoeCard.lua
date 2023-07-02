@@ -8,12 +8,6 @@ local function easeOutCubic(t)
     return 1 - (1 - t) ^ 2
 end
 
-local function easeInBack(t)
-    local c1 = 1.70158;
-    local c3 = c1 + 1; 
-    return c3 * t * t * t - c1 * t * t;
-end
-
 AOECard = {}
 
 --- Requires: damage, radius

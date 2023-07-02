@@ -1,10 +1,6 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-local lerp <const> = function(a, b, t)
-    return a * (1-t) + b * t
-end
-
 class('AimManager').extends()
 
 function AimManager:init(player)
