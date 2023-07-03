@@ -32,7 +32,7 @@ for i=1, MAX_HAND_SIZE do
     table.insert(cardPlacements, placements)
 end
 
-function Hand:init(deck, game, player, mana)
+function Hand:init(deck, game, player)
     self.game = game
     self.player = player
 
@@ -52,9 +52,6 @@ function Hand:init(deck, game, player, mana)
     self.cardAnimationLerpSpeed = 0.2
 
     self.cardSelectIndex = 1
-
-    self.maxMana = mana
-    self.mana = mana
 end
 
 function Hand:isFull()
@@ -78,22 +75,6 @@ function Hand:update(dt, draw)
         end
         card:update(dt, draw)
     end
-end
-
-function Hand:getMana()
-    return self.mana
-end
-
-function Hand:getMaxMana()
-    return self.maxMana
-end
-
-function Hand:addMana(mana)
-    self.mana = math.min(self.mana + mana, self.maxMana)
-end
-
-function Hand:manaIsFull()
-    return self.mana >= self.maxMana
 end
 
 function Hand:selectCardLeft()

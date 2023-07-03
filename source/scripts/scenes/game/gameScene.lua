@@ -138,11 +138,8 @@ function GameScene.init()
     levelManager:spawnRoomEnemies()
 
     -- Deck
-    -- ===== Temp values =====
-    -- =======================
-    local deck = {CARDS.detonate}
-    local maxMana = 5
-    hand = Hand(deck, gameScene, player, maxMana)
+    local deck = Deck.cards
+    hand = Hand(deck, gameScene, player)
 
     -- UI
     uiManager.init(player)
@@ -397,9 +394,11 @@ function GameScene.screenShake()
 end
 
 function pd.debugDraw()
-    local playerHitboxX = player.x - player.widthOffset
-    local playerHitboxY = player.y - player.heightOffset
-    gfx.drawRect(playerHitboxX, playerHitboxY, player.width, player.height)
+    if player and player.x then
+        local playerHitboxX = player.x - player.widthOffset
+        local playerHitboxY = player.y - player.heightOffset
+        gfx.drawRect(playerHitboxX, playerHitboxY, player.width, player.height)
+    end
     local em = enemyManager
     local activeEnemyIndexes = em.getActiveIndexes()
     if activeEnemyIndexes then

@@ -27,9 +27,9 @@ local lerp <const> = function(a, b, t)
     return a * (1-t) + b * t
 end
 
-class('CardSelection').extends(gfx.sprite)
+class('ChoiceSelection').extends(gfx.sprite)
 
-function CardSelection:init(x, y, options, background)
+function ChoiceSelection:init(x, y, options, background)
     self.cardPlacements = {}
     local gap = 100
     local maxHandSize = 5
@@ -77,7 +77,7 @@ function CardSelection:init(x, y, options, background)
     self:add()
 end
 
-function CardSelection:update()
+function ChoiceSelection:update()
     local placements = self.cardPlacements[#self.options]
     for i=1, #self.cards do
         local card = self.cards[i]
@@ -100,30 +100,30 @@ function CardSelection:update()
     end
 end
 
-function CardSelection:animateIn()
+function ChoiceSelection:animateIn()
     self.targetY = self.baseY
     self.active = true
 end
 
-function CardSelection:animateOut()
+function ChoiceSelection:animateOut()
     self.targetY = self.offScreenTopY
     self.active = false
 end
 
-function CardSelection:selectLeft()
+function ChoiceSelection:selectLeft()
     if not self.active then
         return
     end
     self.index = math.ringInt(self.index - 1, 1, #self.options)
 end
 
-function CardSelection:selectRight()
+function ChoiceSelection:selectRight()
     if not self.active then
         return
     end
     self.index = math.ringInt(self.index + 1, 1, #self.options)
 end
 
-function CardSelection:select()
+function ChoiceSelection:select()
     return self.options[self.index]
 end

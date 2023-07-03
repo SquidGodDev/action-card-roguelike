@@ -23,8 +23,8 @@ function LevelSprite:init()
     self:createLevelIcons()
 
     if self.level == self.maxLevel - 1 then
-        self.cardSelection = CardSelection(200, 120, {SELECTION_CHOICES.campfire, SELECTION_CHOICES.market, SELECTION_CHOICES.chest}, true)
-        self.cardSelection:animateIn()
+        self.choiceSelection = ChoiceSelection(200, 120, {SELECTION_CHOICES.campfire, SELECTION_CHOICES.market, SELECTION_CHOICES.chest}, true)
+        self.choiceSelection:animateIn()
     elseif self.level == self.maxLevel then
         self:endLevel()
     else
@@ -42,15 +42,15 @@ function LevelSprite:init()
 end
 
 function LevelSprite:update()
-    if self.cardSelection then
+    if self.choiceSelection then
         if pd.buttonJustPressed(pd.kButtonA) then
-            self:selected(self.cardSelection:select())
-            self.cardSelection:animateOut()
-            self.cardSelection = nil
+            self:selected(self.choiceSelection:select())
+            self.choiceSelection:animateOut()
+            self.choiceSelection = nil
         elseif pd.buttonJustPressed(pd.kButtonLeft) then
-            self.cardSelection:selectLeft()
+            self.choiceSelection:selectLeft()
         elseif pd.buttonJustPressed(pd.kButtonRight) then
-            self.cardSelection:selectRight()
+            self.choiceSelection:selectRight()
         end
     end
 end
@@ -71,13 +71,13 @@ function LevelSprite:selected(choice)
         local transitionDelay = 1000
         pd.timer.performAfterDelay(transitionDelay, function()
             if choice == SELECTION_CHOICES.campfire then
-                SceneManager.switchScene(CampfireScene)
+                sceneManager.switchScene(CampfireScene)
             elseif choice == SELECTION_CHOICES.chest then
-                SceneManager.switchScene(ChestScene)
+                sceneManager.switchScene(ChestScene)
             elseif choice == SELECTION_CHOICES.enemy then
-                SceneManager.switchScene(GameScene)
+                sceneManager.switchScene(GameScene)
             elseif choice == SELECTION_CHOICES.market then
-                SceneManager.switchScene(MarketScene)
+                sceneManager.switchScene(MarketScene)
             end
         end)
     end)
@@ -90,7 +90,7 @@ function LevelSprite:endLevel()
         gameData.world += 1
         local transitionDelay = 1000
         pd.timer.performAfterDelay(transitionDelay, function()
-            SceneManager.switchScene(LevelSprite)
+            sceneManager.switchScene(LevelSprite)
         end)
     end)
 end

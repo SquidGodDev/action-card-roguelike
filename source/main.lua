@@ -23,6 +23,7 @@ import 'scripts/libraries/Utilities'
 -- Globals
 import 'scripts/data/constants'
 import 'scripts/data/gameData'
+import 'scripts/scenes/game/deck'
 
 -- Cards
 import 'scripts/scenes/game/managers/timerManager'
@@ -46,7 +47,6 @@ import 'scripts/data/cards'
 
 import 'scripts/scenes/game/cards/card'
 import 'scripts/scenes/game/cards/hand'
-import 'scripts/scenes/game/cards/deck'
 
 -- Game
 import 'scripts/scenes/game/player'
@@ -62,7 +62,8 @@ import 'scripts/scenes/game/managers/levelManager'
 import 'scripts/scenes/title/titleScene'
 
 -- Level
-import 'scripts/scenes/level/cardSelection'
+import 'scripts/scenes/level/choiceSelection'
+import 'scripts/scenes/level/cardSelectionScene'
 import 'scripts/scenes/level/levelScene'
 import 'scripts/scenes/level/campfire/campfireScene'
 import 'scripts/scenes/level/chest/chestScene'

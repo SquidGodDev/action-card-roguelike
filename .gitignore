@@ -1,7 +1,7 @@
 .sentry-native
-.vscode/launch.json
-.vscode/tasks.json
+.vscode
 builds
 closeSim.ps1
 main.pdx
 *.pdx
+*.DS_STORE
